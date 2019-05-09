@@ -8,17 +8,17 @@ public class RuleConfigUtil {
 	
 	private static final String DROOL_PACKAGE = "package com.smi.drools;\r\n";
 	
-	private static final String DROOL_MODEL_PACKAGE = "import com.neo.drools.model.%s;\r\n";
+	private static final String DROOL_MODEL_PACKAGE = "import com.smi.drools.model.%s;\r\n";
 	
 	private static final String DROOL_RULE_NAME = "rule \"%s\"\r\n";
 	
 	private static final String DROOL_WHEN = "\twhen\r\n";
 	
-	private static final String DROOL_WHEN_BUILDER = "%s(%s)\r\n";
+	private static final String DROOL_WHEN_BUILDER = "\t\t%s : %s(%s)\r\n";
 	
 	private static final String DROOL_THEN = "\tthen\r\n";
 	
-	private static final String DROOL_THEN_BUILDER = "System.out.println(%s);\r\n";
+	private static final String DROOL_THEN_BUILDER = "\t\tSystem.out.println(%s);\r\n";
 	
 	private static final String DROOL_END = "end\r\n";
 	
@@ -34,11 +34,11 @@ public class RuleConfigUtil {
 			conditions += conditionBuilder.getKey();
 			
 			if (conditionBuilder.getFilter().equalsIgnoreCase("equals")) {
-				conditions += " ";
+				conditions += " == ";
 			} else if (conditionBuilder.getFilter().equalsIgnoreCase("notequals")) {
 				conditions += " != ";
 			}
-			conditions += conditionBuilder.getValue(); 
+			conditions += "'"+conditionBuilder.getValue()+"'"; 
 			
 			if (conditionBuilder.getCondition() != null && !conditionBuilder.getCondition().isEmpty()) {
 				if (conditionBuilder.getCondition().equalsIgnoreCase("and")) {
@@ -51,7 +51,7 @@ public class RuleConfigUtil {
 			}
 		}
 		
-		rule += String.format(DROOL_WHEN_BUILDER, ruleConfig.getModelType(), conditions);
+		rule += String.format(DROOL_WHEN_BUILDER, ruleConfig.getModelType().toLowerCase(), ruleConfig.getModelType(), conditions);
 		rule += DROOL_THEN;
 		for (ActionBuilder actionBuilder : ruleConfig.getActionBuilders()) {
 			rule += String.format(DROOL_THEN_BUILDER, actionBuilder.getValue());

@@ -16,7 +16,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
@@ -77,7 +76,7 @@ public class TestController {
         DocumentContext documentContext = new DocumentContext();
         documentContext.setDocumentType("EDI");
         documentContext.setDocumentVersion("00401");
-        documentContext.setSenderEid("1123");
+        documentContext.setSenderEid("1124");
         
         kieSession.insert(documentContext);
         int ruleFiredCount = kieSession.fireAllRules();
@@ -95,7 +94,7 @@ public class TestController {
 		rule.setContent(ruleStr);
 		rule.setCreateTime("");
 		rule.setRuleKey(ruleConfig.getModelType());
-		rule.setVersion("1");
+		rule.setVersion("2");
 		
 		ruleRepository.save(rule);
 		rules.reload();
