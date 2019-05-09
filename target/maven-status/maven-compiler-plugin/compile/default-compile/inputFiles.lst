@@ -1,0 +1,8 @@
+/home/sys-user/git/drools-examples/spring-boot-drools-db/src/main/java/com/neo/drools/model/fact/AddressCheckResult.java
+/home/sys-user/git/drools-examples/spring-boot-drools-db/src/main/java/com/neo/drools/repository/RuleRepository.java
+/home/sys-user/git/drools-examples/spring-boot-drools-db/src/main/java/com/neo/drools/model/Rule.java
+/home/sys-user/git/drools-examples/spring-boot-drools-db/src/main/java/com/neo/drools/SpringBootDroolsApplication.java
+/home/sys-user/git/drools-examples/spring-boot-drools-db/src/main/java/com/neo/drools/config/DroolsAutoConfiguration.java
+/home/sys-user/git/drools-examples/spring-boot-drools-db/src/main/java/com/neo/drools/controller/TestController.java
+/home/sys-user/git/drools-examples/spring-boot-drools-db/src/main/java/com/neo/drools/model/Address.java
+/home/sys-user/git/drools-examples/spring-boot-drools-db/src/main/java/com/neo/drools/service/ReloadDroolsRulesService.java
