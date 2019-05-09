@@ -14,7 +14,7 @@ public class RuleConfigUtil {
 	
 	private static final String DROOL_WHEN = "\twhen\r\n";
 	
-	private static final String DROOL_WHEN_BUILDER = "%s(%s)";
+	private static final String DROOL_WHEN_BUILDER = "%s(%s)\r\n";
 	
 	private static final String DROOL_THEN = "\tthen\r\n";
 	
