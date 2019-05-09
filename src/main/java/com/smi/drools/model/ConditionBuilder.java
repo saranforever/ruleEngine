@@ -4,9 +4,11 @@ public class ConditionBuilder {
 
 	private String key;
 
-	private String condition;
+	private String filter;
 
 	private String value;
+	
+	private String condition;
 
 	public String getKey() {
 		return key;
@@ -16,12 +18,12 @@ public class ConditionBuilder {
 		this.key = key;
 	}
 
-	public String getCondition() {
-		return condition;
+	public String getFilter() {
+		return filter;
 	}
 
-	public void setCondition(String condition) {
-		this.condition = condition;
+	public void setFilter(String filter) {
+		this.filter = filter;
 	}
 
 	public String getValue() {
@@ -30,6 +32,14 @@ public class ConditionBuilder {
 
 	public void setValue(String value) {
 		this.value = value;
+	}
+
+	public String getCondition() {
+		return condition;
+	}
+
+	public void setCondition(String condition) {
+		this.condition = condition;
 	}
 
 }

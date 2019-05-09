@@ -10,6 +10,7 @@ public class RuleConfig {
 
 	private String ruleName;
 	private String ruleDescription;
+	private String modelType;
 
 	private List<ConditionBuilder> conditionBuilders;
 	private List<ActionBuilder> actionBuilders;
@@ -28,6 +29,14 @@ public class RuleConfig {
 
 	public void setRuleDescription(String ruleDescription) {
 		this.ruleDescription = ruleDescription;
+	}
+
+	public String getModelType() {
+		return modelType;
+	}
+
+	public void setModelType(String modelType) {
+		this.modelType = modelType;
 	}
 
 	public List<ConditionBuilder> getConditionBuilders() {
@@ -49,24 +58,27 @@ public class RuleConfig {
 	public static void main(String[] args) {
 		RuleConfig ruleConfig = new RuleConfig();
 		ruleConfig.setRuleName("docRule");
+		ruleConfig.setModelType("DocumentContext");
 		
 		List<ConditionBuilder> conditionBuilders = new ArrayList<ConditionBuilder>();
 		
 		ConditionBuilder conditionBuilder = new ConditionBuilder();
 		conditionBuilder.setKey("documentType");
-		conditionBuilder.setCondition("equals");
+		conditionBuilder.setFilter("equals");
 		conditionBuilder.setValue("EDI");
+		conditionBuilder.setCondition("and");
 		conditionBuilders.add(conditionBuilder);
 		
 		ConditionBuilder conditionBuilder1 = new ConditionBuilder();
 		conditionBuilder1.setKey("documentVersion");
-		conditionBuilder1.setCondition("equals");
+		conditionBuilder.setFilter("equals");
 		conditionBuilder1.setValue("00401");
+		conditionBuilder1.setCondition("or");
 		conditionBuilders.add(conditionBuilder1);
 		
 		ConditionBuilder conditionBuilder2 = new ConditionBuilder();
 		conditionBuilder2.setKey("senderEid");
-		conditionBuilder2.setCondition("notequals");
+		conditionBuilder2.setFilter("notequals");
 		conditionBuilder2.setValue("1123");
 		conditionBuilders.add(conditionBuilder2);
 		
@@ -89,10 +101,11 @@ public class RuleConfig {
 		/*{
 		 * "ruleName":"docRule",
 		 * "ruleDescription":null,
+		 * "modelType":"DocumentContext",
 		 * "conditionBuilders":[
-			 * {"key":"documentType","condition":"equals","value":"EDI"},
-			 * {"key":"documentVersion","condition":"equals","value":"00401"},
-			 * {"key":"senderEid","condition":"notequals","value":"1123"}
+			 * {"key":"documentType","filter":"equals","value":"EDI", "condition":"and"},
+			 * {"key":"documentVersion","filter":"equals","value":"00401", "condition":"or"},
+			 * {"key":"senderEid","filter":"notequals","value":"1123"}
 		 * ],
 		 * "actionBuilders":[
 			 * {"key":"val1","value":"123"},

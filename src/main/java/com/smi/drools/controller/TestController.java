@@ -8,6 +8,7 @@ import com.smi.drools.model.RuleConfig;
 import com.smi.drools.model.fact.AddressCheckResult;
 import com.smi.drools.repository.RuleRepository;
 import com.smi.drools.service.ReloadDroolsRulesService;
+import com.smi.drools.util.RuleConfigUtil;
 
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,21 +70,31 @@ public class TestController {
     }
     
     @ResponseBody
+    @RequestMapping("/testdoccontext")
+    public void testDocumentContext(){
+        KieSession kieSession = ReloadDroolsRulesService.kieContainer.newKieSession();
+
+        DocumentContext documentContext = new DocumentContext();
+        documentContext.setDocumentType("EDI");
+        documentContext.setDocumentVersion("00401");
+        documentContext.setSenderEid("1123");
+        
+        kieSession.insert(documentContext);
+        int ruleFiredCount = kieSession.fireAllRules();
+        kieSession.destroy();
+        System.out.println("Triggered" + ruleFiredCount + "DocumentContext");
+
+    }
+    
+    @ResponseBody
     @PostMapping("/createdocumentcontextrule")
-    public String createDocRule(@RequestBody RuleConfig ruleConfig, @RequestParam String model) {
-    	String ruleStr = "package com.smi.drools\r\n";
-		ruleStr += "import com.neo.drools.model.Message;\r\n";
-		ruleStr += "rule \"rule1\"\r\n";
-		ruleStr += "\twhen\r\n";
-		ruleStr += "Message( status == 1, myMessage : msg )";
-		ruleStr += "\tthen\r\n";
-		ruleStr += "\t\tSystem.out.println( 1+\":\"+myMessage );\r\n";
-		ruleStr += "end\r\n";
+    public String createDocRule(@RequestBody RuleConfig ruleConfig) {
+    	String ruleStr = RuleConfigUtil.buildRule(ruleConfig);
 		
 		Rule rule = new Rule();
 		rule.setContent(ruleStr);
 		rule.setCreateTime("");
-		rule.setRuleKey("score");
+		rule.setRuleKey(ruleConfig.getModelType());
 		rule.setVersion("1");
 		
 		ruleRepository.save(rule);
