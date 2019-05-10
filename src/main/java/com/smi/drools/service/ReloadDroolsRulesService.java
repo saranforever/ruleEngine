@@ -8,10 +8,12 @@ import org.kie.api.builder.KieBuilder;
 import org.kie.api.builder.KieFileSystem;
 import org.kie.api.builder.KieRepository;
 import org.kie.api.builder.Message;
+import org.kie.api.io.KieResources;
 import org.kie.api.runtime.KieContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,10 +28,16 @@ public class ReloadDroolsRulesService {
 		KieContainer kieContainer = loadContainerFromString(loadRules());
 		this.kieContainer = kieContainer;
 	}
+	
+	public void reload(Rule rule) {
+		List<Rule> rules = new ArrayList<Rule>();
+		rules.add(rule);
+		KieContainer kieContainer = loadContainerFromString(rules);
+		this.kieContainer = kieContainer;
+	}
 
 	private List<Rule> loadRules() {
 		List<Rule> rules = ruleRepository.findAll();
-		// System.out.println(rules.toString());
 		return rules;
 	}
 
@@ -58,4 +66,5 @@ public class ReloadDroolsRulesService {
 		System.out.println("Time to load container: " + (endTime - startTime) + " ms");
 		return kContainer;
 	}
+
 }

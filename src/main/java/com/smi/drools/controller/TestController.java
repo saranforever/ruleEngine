@@ -59,7 +59,7 @@ public class TestController {
 
         Message message = new Message();
 		message.setStatus(1);
-		message.setMsg("hello world!");
+		message.setMsg("hello test!");
         
         kieSession.insert(message);
         int ruleFiredCount = kieSession.fireAllRules();
@@ -82,7 +82,6 @@ public class TestController {
         int ruleFiredCount = kieSession.fireAllRules();
         kieSession.destroy();
         System.out.println("Triggered" + ruleFiredCount + "DocumentContext");
-
     }
     
     @ResponseBody
@@ -93,8 +92,8 @@ public class TestController {
 		Rule rule = new Rule();
 		rule.setContent(ruleStr);
 		rule.setCreateTime("");
-		rule.setRuleKey(ruleConfig.getModelType());
-		rule.setVersion("2");
+		rule.setRuleKey(ruleConfig.getModelType()+ruleConfig.getSalience());
+		rule.setVersion(ruleConfig.getSalience()+"");
 		
 		ruleRepository.save(rule);
 		rules.reload();
@@ -105,8 +104,8 @@ public class TestController {
     @ResponseBody
     @RequestMapping("/createrule")
     public String createRule() {
-    	String ruleStr = "package com.neo.drools\r\n";
-		ruleStr += "import com.neo.drools.model.Message;\r\n";
+    	String ruleStr = "package com.smi.drools\r\n";
+		ruleStr += "import com.smi.drools.model.Message;\r\n";
 		ruleStr += "rule \"rule1\"\r\n";
 		ruleStr += "\twhen\r\n";
 		ruleStr += "Message( status == 1, myMessage : msg )";
@@ -121,7 +120,7 @@ public class TestController {
 		rule.setVersion("1");
 		
 		ruleRepository.save(rule);
-		rules.reload();
+		rules.reload(rule);
 		
 		return "rule created";
     }

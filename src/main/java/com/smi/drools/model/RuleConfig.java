@@ -8,20 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RuleConfig {
 
-	private String ruleName;
 	private String ruleDescription;
 	private String modelType;
-
-	private List<ConditionBuilder> conditionBuilders;
-	private List<ActionBuilder> actionBuilders;
-
-	public String getRuleName() {
-		return ruleName;
-	}
-
-	public void setRuleName(String ruleName) {
-		this.ruleName = ruleName;
-	}
+	
+	private int salience;
+	
+	private List<RuleBuilder> ruleBuilder;
 
 	public String getRuleDescription() {
 		return ruleDescription;
@@ -39,27 +31,31 @@ public class RuleConfig {
 		this.modelType = modelType;
 	}
 
-	public List<ConditionBuilder> getConditionBuilders() {
-		return conditionBuilders;
+	public int getSalience() {
+		return salience;
 	}
 
-	public void setConditionBuilders(List<ConditionBuilder> conditionBuilders) {
-		this.conditionBuilders = conditionBuilders;
+	public void setSalience(int salience) {
+		this.salience = salience;
 	}
 
-	public List<ActionBuilder> getActionBuilders() {
-		return actionBuilders;
+	public List<RuleBuilder> getRuleBuilder() {
+		return ruleBuilder;
 	}
 
-	public void setActionBuilders(List<ActionBuilder> actionBuilders) {
-		this.actionBuilders = actionBuilders;
+	public void setRuleBuilder(List<RuleBuilder> ruleBuilder) {
+		this.ruleBuilder = ruleBuilder;
 	}
-	
+
 	public static void main(String[] args) {
 		RuleConfig ruleConfig = new RuleConfig();
-		ruleConfig.setRuleName("docRule");
 		ruleConfig.setModelType("DocumentContext");
 		
+		
+		List<RuleBuilder> ruleBuilders = new ArrayList<RuleBuilder>();
+		//Rule 1
+		RuleBuilder ruleBuilder = new RuleBuilder();
+		ruleBuilder.setRuleName("drule1");
 		List<ConditionBuilder> conditionBuilders = new ArrayList<ConditionBuilder>();
 		
 		ConditionBuilder conditionBuilder = new ConditionBuilder();
@@ -71,7 +67,7 @@ public class RuleConfig {
 		
 		ConditionBuilder conditionBuilder1 = new ConditionBuilder();
 		conditionBuilder1.setKey("documentVersion");
-		conditionBuilder.setFilter("equals");
+		conditionBuilder1.setFilter("equals");
 		conditionBuilder1.setValue("00401");
 		conditionBuilder1.setCondition("or");
 		conditionBuilders.add(conditionBuilder1);
@@ -82,7 +78,7 @@ public class RuleConfig {
 		conditionBuilder2.setValue("1123");
 		conditionBuilders.add(conditionBuilder2);
 		
-		ruleConfig.setConditionBuilders(conditionBuilders);
+		ruleBuilder.setConditionBuilders(conditionBuilders);
 		
 		List<ActionBuilder> actionBuilders = new ArrayList<ActionBuilder>();
 		
@@ -96,23 +92,54 @@ public class RuleConfig {
 		actionBuilder1.setValue("321");
 		actionBuilders.add(actionBuilder1);
 		
-		ruleConfig.setActionBuilders(actionBuilders);
+		ruleBuilder.setActionBuilders(actionBuilders);
 		
-		/*{
-		 * "ruleName":"docRule",
-		 * "ruleDescription":null,
-		 * "modelType":"DocumentContext",
-		 * "conditionBuilders":[
-			 * {"key":"documentType","filter":"equals","value":"EDI", "condition":"and"},
-			 * {"key":"documentVersion","filter":"equals","value":"00401", "condition":"or"},
-			 * {"key":"senderEid","filter":"notequals","value":"1123"}
-		 * ],
-		 * "actionBuilders":[
-			 * {"key":"val1","value":"123"},
-			 * {"key":"val2","value":"321"}
-			 * ]
-		 * }*/
-
+		ruleBuilders.add(ruleBuilder);
+		
+		//Rule 2
+		RuleBuilder ruleBuilder1 = new RuleBuilder();
+		ruleBuilder1.setRuleName("drule2");
+		List<ConditionBuilder> conditionBuilders1 = new ArrayList<ConditionBuilder>();
+		
+		ConditionBuilder conditionBuilder11 = new ConditionBuilder();
+		conditionBuilder11.setKey("documentType");
+		conditionBuilder11.setFilter("equals");
+		conditionBuilder11.setValue("EDI");
+		conditionBuilder11.setCondition("and");
+		conditionBuilders1.add(conditionBuilder11);
+		
+		ConditionBuilder conditionBuilder12 = new ConditionBuilder();
+		conditionBuilder12.setKey("documentVersion");
+		conditionBuilder12.setFilter("equals");
+		conditionBuilder12.setValue("00401");
+		conditionBuilder12.setCondition("or");
+		conditionBuilders1.add(conditionBuilder12);
+		
+		ConditionBuilder conditionBuilder13 = new ConditionBuilder();
+		conditionBuilder13.setKey("senderEid");
+		conditionBuilder13.setFilter("notequals");
+		conditionBuilder13.setValue("1124");
+		conditionBuilders1.add(conditionBuilder13);
+		
+		ruleBuilder1.setConditionBuilders(conditionBuilders1);
+		
+		List<ActionBuilder> actionBuilders1 = new ArrayList<ActionBuilder>();
+		
+		ActionBuilder actionBuilder11 = new ActionBuilder();
+		actionBuilder11.setKey("val1");
+		actionBuilder11.setValue("123");
+		actionBuilders1.add(actionBuilder11);
+		
+		ActionBuilder actionBuilder12 = new ActionBuilder();
+		actionBuilder12.setKey("val2");
+		actionBuilder12.setValue("321");
+		actionBuilders1.add(actionBuilder12);
+		
+		ruleBuilder1.setActionBuilders(actionBuilders1);
+		
+		ruleBuilders.add(ruleBuilder1);
+		
+		ruleConfig.setRuleBuilder(ruleBuilders);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		try {
