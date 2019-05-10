@@ -8,11 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class RuleConfig {
 
-	private String ruleName;
-	private String ruleDescription;
+/*	private String ruleName;
+	private String ruleDescription;*/
 	private String modelType;
+	private List<RuleBuilder> ruleBuilders;
 
-	private List<ConditionBuilder> conditionBuilders;
+/*	private List<ConditionBuilder> conditionBuilders;
 	private List<ActionBuilder> actionBuilders;
 
 	public String getRuleName() {
@@ -29,7 +30,7 @@ public class RuleConfig {
 
 	public void setRuleDescription(String ruleDescription) {
 		this.ruleDescription = ruleDescription;
-	}
+	}*/
 
 	public String getModelType() {
 		return modelType;
@@ -39,7 +40,7 @@ public class RuleConfig {
 		this.modelType = modelType;
 	}
 
-	public List<ConditionBuilder> getConditionBuilders() {
+/*	public List<ConditionBuilder> getConditionBuilders() {
 		return conditionBuilders;
 	}
 
@@ -53,11 +54,19 @@ public class RuleConfig {
 
 	public void setActionBuilders(List<ActionBuilder> actionBuilders) {
 		this.actionBuilders = actionBuilders;
-	}
+	}*/
 	
+	public List<RuleBuilder> getRuleBuilders() {
+		return ruleBuilders;
+	}
+
+	public void setRuleBuilders(List<RuleBuilder> ruleBuilders) {
+		this.ruleBuilders = ruleBuilders;
+	}
+
 	public static void main(String[] args) {
 		RuleConfig ruleConfig = new RuleConfig();
-		ruleConfig.setRuleName("docRule");
+/*		ruleConfig.setRuleName("docRule");*/
 		ruleConfig.setModelType("DocumentContext");
 		
 		List<ConditionBuilder> conditionBuilders = new ArrayList<ConditionBuilder>();
@@ -82,7 +91,7 @@ public class RuleConfig {
 		conditionBuilder2.setValue("1123");
 		conditionBuilders.add(conditionBuilder2);
 		
-		ruleConfig.setConditionBuilders(conditionBuilders);
+//		ruleConfig.setConditionBuilders(conditionBuilders);
 		
 		List<ActionBuilder> actionBuilders = new ArrayList<ActionBuilder>();
 		
@@ -96,7 +105,7 @@ public class RuleConfig {
 		actionBuilder1.setValue("321");
 		actionBuilders.add(actionBuilder1);
 		
-		ruleConfig.setActionBuilders(actionBuilders);
+	//	ruleConfig.setActionBuilders(actionBuilders);
 		
 		/*{
 		 * "ruleName":"docRule",

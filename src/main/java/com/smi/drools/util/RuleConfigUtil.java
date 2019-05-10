@@ -2,6 +2,7 @@ package com.smi.drools.util;
 
 import com.smi.drools.model.ActionBuilder;
 import com.smi.drools.model.ConditionBuilder;
+import com.smi.drools.model.RuleBuilder;
 import com.smi.drools.model.RuleConfig;
 
 public class RuleConfigUtil {
@@ -26,11 +27,13 @@ public class RuleConfigUtil {
 		
 		String rule = DROOL_PACKAGE;
 		rule += String.format(DROOL_MODEL_PACKAGE, ruleConfig.getModelType()); 
-		rule += String.format(DROOL_RULE_NAME, ruleConfig.getRuleName());
+		
+		for(RuleBuilder ruleBuilder : ruleConfig.getRuleBuilders()) {
+		rule += String.format(DROOL_RULE_NAME, ruleBuilder.getRuleName());
 		rule += DROOL_WHEN;
 		
 		String conditions = "";
-		for (ConditionBuilder conditionBuilder : ruleConfig.getConditionBuilders()) {
+		for (ConditionBuilder conditionBuilder : ruleBuilder.getConditionBuilders()) {
 			conditions += conditionBuilder.getKey();
 			
 			if (conditionBuilder.getFilter().equalsIgnoreCase("equals")) {
@@ -53,10 +56,11 @@ public class RuleConfigUtil {
 		
 		rule += String.format(DROOL_WHEN_BUILDER, ruleConfig.getModelType().toLowerCase(), ruleConfig.getModelType(), conditions);
 		rule += DROOL_THEN;
-		for (ActionBuilder actionBuilder : ruleConfig.getActionBuilders()) {
+		for (ActionBuilder actionBuilder : ruleBuilder.getActionBuilders()) {
 			rule += String.format(DROOL_THEN_BUILDER, actionBuilder.getValue());
 		}
 		rule += DROOL_END;
+		}
 		return rule;
 	}
 	
