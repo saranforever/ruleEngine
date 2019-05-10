@@ -7,6 +7,7 @@ import com.smi.drools.model.Amount;
 import com.smi.drools.model.AutoLineItemData;
 import com.smi.drools.model.ConditionBuilder;
 import com.smi.drools.model.CustomerDocument;
+import com.smi.drools.model.CustomerDocumentContext;
 import com.smi.drools.model.Description;
 import com.smi.drools.model.DocumentContext;
 import com.smi.drools.model.FieldData;
@@ -25,6 +26,8 @@ import com.smi.drools.repository.RuleRepository;
 import com.smi.drools.service.ReloadDroolsRulesService;
 import com.smi.drools.util.RuleConfigUtil;
 
+import scala.annotation.meta.field;
+
 import org.assertj.core.api.Descriptable;
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +40,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RequestMapping("/test")
@@ -207,24 +212,19 @@ public class TestController {
     	return ruleTestConfig;
     }
     
-    
-    @ResponseBody
-    @RequestMapping(value="/sample")
-    public CustomerDocument getJSON() {
-    	
-    	//------------------------AutoLineItemData---------------------------------//
+    public AutoLineItemData buildAutoLineItemData() {
     	AutoLineItemData autoLineItemData = new AutoLineItemData();
-    	List<AutoLineItemData> autoLineItemDatas = new ArrayList<AutoLineItemData>();
-    	autoLineItemDatas.add(autoLineItemData);
-    	//------------------------AutoLineItemData - EOF---------------------------//
+    	autoLineItemData.setAutoLine("1");
+    	return autoLineItemData;
+    }
+    
+    public List<FieldData> buildFieldData() {
     	
-    	
-     	//-------------------------------FieldData---------------------------------//
     	Validation validation = new Validation();
     	validation.setReason("Nil");
     	validation.setResult("Success");
     	
-    	//--------FieldData 1-------//
+    	//>>>>>>>>>>>>Build FieldValue1<<<<<<<<<<<
     	FieldValue fieldValue1 = new FieldValue();
     	fieldValue1.setValidation(validation);
     	fieldValue1.setValue("1553496248");
@@ -235,9 +235,9 @@ public class TestController {
     	FieldData fieldData1 = new FieldData();
     	fieldData1.setFieldName("InvoiceNumber");
     	fieldData1.setFieldValues(fieldValues1);
-    	//--------FieldData 1 - EOF-------//
+    	//------------EOR-------------------------
     	
-    	//--------FieldData 2-------//
+    	//>>>>>>>>>>>>Build FieldValue2<<<<<<<<<<<
     	FieldValue fieldValue2 = new FieldValue();
     	fieldValue2.setValidation(validation);
     	fieldValue2.setValue("Electro Solution, Joel Willis 858 Lynn Street 07002 Bayonne New Jersey United States joel.willis63@example.com (683)-556-5104");
@@ -248,9 +248,9 @@ public class TestController {
     	FieldData fieldData2 = new FieldData();
     	fieldData2.setFieldName("ShipTo");
     	fieldData2.setFieldValues(fieldValues2);
-    	//--------FieldData 2 - EOF-------//
+    	//------------EOR-------------------------
     	
-    	//--------FieldData 3-------//
+    	//>>>>>>>>>>>>Build FieldValue3<<<<<<<<<<<
     	FieldValue fieldValue3 = new FieldValue();
     	fieldValue3.setValidation(validation);
     	fieldValue3.setValue("Electro Solution, Joel Willis 858 Lynn Street 07002 Bayonne New Jersey United States joel.willis63@example.com (683)-556-5104");
@@ -261,20 +261,23 @@ public class TestController {
     	FieldData fieldData3 = new FieldData();
     	fieldData3.setFieldName("BillTo");
     	fieldData3.setFieldValues(fieldValues3);
-    	//--------FieldData 3 - EOF-------//
+    	//------------EOR-------------------------
     	
     	List<FieldData> fieldDatas = new ArrayList<FieldData>();
     	fieldDatas.add(fieldData1);
     	fieldDatas.add(fieldData2);
     	fieldDatas.add(fieldData3);
-    	//---------------------------FieldData - EOF--------------------------------//
     	
-    	//-----------------------------lineItemData---------------------------------//
+    	return fieldDatas;
+    }
+    
+    public List<LineItemData> buildLineItemData(){
+
     	Validation lineValidation = new Validation();
     	lineValidation.setReason("Nil");
     	lineValidation.setResult("Nil");
     	
-    	//--------lineItemData 1-------//
+    	//>>>>>>>>>>>>Build LineItemData1<<<<<<<<<<<
     	Amount amount1 = new Amount();
     	amount1.setValidation(lineValidation);
     	amount1.setValue("1,350.00 ");
@@ -296,10 +299,9 @@ public class TestController {
     	lineItemData1.setUnitPrice(unitPrice1);
     	lineItemData1.setDescription(description1);
     	lineItemData1.setQty(qty1);
+    	//------------EOR-------------------------
     	
-    	//--------lineItemData 1 - EOF-------//
-    	
-    	//--------lineItemData 2-------//
+    	//>>>>>>>>>>>>Build LineItemData2<<<<<<<<<<<
     	Amount amount2 = new Amount();
     	amount2.setValidation(lineValidation);
     	amount2.setValue("225.00 ");
@@ -321,10 +323,9 @@ public class TestController {
     	lineItemData2.setUnitPrice(unitPrice2);
     	lineItemData2.setDescription(description2);
     	lineItemData2.setQty(qty2);
+		// ------------EOR-------------------------
     	
-    	//--------lineItemData 2 - EOF-------//
-    	
-    	//--------lineItemData 3-------//
+    	//>>>>>>>>>>>>Build LineItemData2<<<<<<<<<<<
     	Amount amount3 = new Amount();
     	amount3.setValidation(lineValidation);
     	amount3.setValue("4,002.00 ");
@@ -346,23 +347,40 @@ public class TestController {
     	lineItemData3.setUnitPrice(unitPrice3);
     	lineItemData3.setDescription(description3);
     	lineItemData3.setQty(qty3);
-    	
-    	//--------lineItemData 3 - EOF-------//
-    	
-    	
+    	//------------EOR-------------------------
+    	    	
     	List<LineItemData> lineItemDatas = new ArrayList<LineItemData>();
     	lineItemDatas.add(lineItemData1);
     	lineItemDatas.add(lineItemData2);
     	lineItemDatas.add(lineItemData3);
-    	//--------------------------lineItemData - EOF------------------------------//
+    	return lineItemDatas;
+    }
+   
+    @ResponseBody
+    @RequestMapping(value="/response")
+    public List<CustomerDocument> getCustomerDocumentResponse() {
+    
+    	CustomerDocumentContext customerDocumentContext = new CustomerDocumentContext();
+    	customerDocumentContext.setAutoLineItemData(this.buildAutoLineItemData());
+    	customerDocumentContext.setFieldDatas(this.buildFieldData());
+    	customerDocumentContext.setLineItemDatas(this.buildLineItemData());
     	
+    	Map<Integer,CustomerDocumentContext> customerMap = new HashMap<Integer, CustomerDocumentContext>();
+    	customerMap.put(1, customerDocumentContext);
+
+    	CustomerDocument customerDocument1 = new CustomerDocument();
+    	customerDocument1.setSenderEid("1111");
+    	customerDocument1.setReceiverEid("2222");
+    	customerDocument1.setCustomerDocumentsContextMap(customerMap);
     	
-    	CustomerDocument customerDocument = new CustomerDocument();
-    	customerDocument.setAutoLineItemDatas(autoLineItemDatas);
-    	customerDocument.setFieldDatas(fieldDatas);
-    	customerDocument.setLineItemDatas(lineItemDatas);
+    	CustomerDocument customerDocument2 = new CustomerDocument();
+    	customerDocument2.setSenderEid("3333");
+    	customerDocument2.setReceiverEid("4444");
+    	customerDocument2.setCustomerDocumentsContextMap(customerMap);
     	
-    	return customerDocument;
-    	
+    	List<CustomerDocument> customerDocuments = new ArrayList<CustomerDocument>();
+    	customerDocuments.add(customerDocument1);
+    	customerDocuments.add(customerDocument2);
+    	return customerDocuments;
     }
 }

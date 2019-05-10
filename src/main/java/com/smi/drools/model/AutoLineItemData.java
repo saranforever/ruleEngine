@@ -6,6 +6,6 @@ import lombok.Data;
 
 @Data
 public class AutoLineItemData{
-	private List<String> lineItem;
-
+	
+	private String autoLine;
 }
