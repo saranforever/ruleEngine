@@ -21,46 +21,51 @@ public class RuleConfigUtil {
 	
 	private static final String DROOL_THEN_BUILDER = "\t\tSystem.out.println(%s);\r\n";
 	
-	private static final String DROOL_END = "end\r\n";
+	private static final String DROOL_END = "end\r\n\n";
 	
+	/**
+	 * @param ruleConfig
+	 * @return
+	 */
 	public static String buildRule(RuleConfig ruleConfig) {
 		
 		String rule = DROOL_PACKAGE;
 		rule += String.format(DROOL_MODEL_PACKAGE, ruleConfig.getModelType()); 
 		
-		for(RuleBuilder ruleBuilder : ruleConfig.getRuleBuilders()) {
-		rule += String.format(DROOL_RULE_NAME, ruleBuilder.getRuleName());
-		rule += DROOL_WHEN;
-		
-		String conditions = "";
-		for (ConditionBuilder conditionBuilder : ruleBuilder.getConditionBuilders()) {
-			conditions += conditionBuilder.getKey();
+		for (RuleBuilder ruleBuilder : ruleConfig.getRuleBuilder()) {
+			String conditions = "";
+			rule += String.format(DROOL_RULE_NAME, ruleBuilder.getRuleName());
+			rule += DROOL_WHEN;
 			
-			if (conditionBuilder.getFilter().equalsIgnoreCase("equals")) {
-				conditions += " == ";
-			} else if (conditionBuilder.getFilter().equalsIgnoreCase("notequals")) {
-				conditions += " != ";
-			}
-			conditions += "'"+conditionBuilder.getValue()+"'"; 
-			
-			if (conditionBuilder.getCondition() != null && !conditionBuilder.getCondition().isEmpty()) {
-				if (conditionBuilder.getCondition().equalsIgnoreCase("and")) {
-					conditions += " && ";
-				}
+			for (ConditionBuilder conditionBuilder : ruleBuilder.getConditionBuilders()) {
+				conditions += conditionBuilder.getKey();
 				
-				if (conditionBuilder.getCondition().equalsIgnoreCase("or")) {
-					conditions += " || ";
+				if (conditionBuilder.getFilter().equalsIgnoreCase("equals")) {
+					conditions += " == ";
+				} else if (conditionBuilder.getFilter().equalsIgnoreCase("notequals")) {
+					conditions += " != ";
+				}
+				conditions += "'"+conditionBuilder.getValue()+"'"; 
+				
+				if (conditionBuilder.getCondition() != null && !conditionBuilder.getCondition().isEmpty()) {
+					if (conditionBuilder.getCondition().equalsIgnoreCase("and")) {
+						conditions += " && ";
+					}
+					
+					if (conditionBuilder.getCondition().equalsIgnoreCase("or")) {
+						conditions += " || ";
+					}
 				}
 			}
+			
+			rule += String.format(DROOL_WHEN_BUILDER, ruleConfig.getModelType().toLowerCase(), ruleConfig.getModelType(), conditions);
+			rule += DROOL_THEN;
+			for (ActionBuilder actionBuilder : ruleBuilder.getActionBuilders()) {
+				rule += String.format(DROOL_THEN_BUILDER, actionBuilder.getValue());
+			}
+			rule += DROOL_END;
 		}
 		
-		rule += String.format(DROOL_WHEN_BUILDER, ruleConfig.getModelType().toLowerCase(), ruleConfig.getModelType(), conditions);
-		rule += DROOL_THEN;
-		for (ActionBuilder actionBuilder : ruleBuilder.getActionBuilders()) {
-			rule += String.format(DROOL_THEN_BUILDER, actionBuilder.getValue());
-		}
-		rule += DROOL_END;
-		}
 		return rule;
 	}
 	
