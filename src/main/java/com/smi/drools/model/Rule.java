@@ -17,7 +17,7 @@ public class Rule implements Serializable {
 	private Long id;
 	@Column(nullable = false, unique = true)
 	private String ruleKey;
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
 	@Column(nullable = false, unique = true)
 	private String version;

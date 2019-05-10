@@ -13,7 +13,7 @@ public class RuleConfig {
 	
 	private int salience;
 	
-	private List<RuleBuilder> ruleBuilder;
+	private List<RuleBuilder> ruleBuilders;
 
 	public String getRuleDescription() {
 		return ruleDescription;
@@ -39,12 +39,12 @@ public class RuleConfig {
 		this.salience = salience;
 	}
 
-	public List<RuleBuilder> getRuleBuilder() {
-		return ruleBuilder;
+	public List<RuleBuilder> getRuleBuilders() {
+		return ruleBuilders;
 	}
 
-	public void setRuleBuilder(List<RuleBuilder> ruleBuilder) {
-		this.ruleBuilder = ruleBuilder;
+	public void setRuleBuilders(List<RuleBuilder> ruleBuilders) {
+		this.ruleBuilders = ruleBuilders;
 	}
 
 	public static void main(String[] args) {
@@ -139,7 +139,7 @@ public class RuleConfig {
 		
 		ruleBuilders.add(ruleBuilder1);
 		
-		ruleConfig.setRuleBuilder(ruleBuilders);
+		ruleConfig.setRuleBuilders(ruleBuilders);
 		
 		ObjectMapper mapper = new ObjectMapper();
 		try {

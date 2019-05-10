@@ -32,7 +32,7 @@ public class RuleConfigUtil {
 		String rule = DROOL_PACKAGE;
 		rule += String.format(DROOL_MODEL_PACKAGE, ruleConfig.getModelType()); 
 		
-		for (RuleBuilder ruleBuilder : ruleConfig.getRuleBuilder()) {
+		for (RuleBuilder ruleBuilder : ruleConfig.getRuleBuilders()) {
 			String conditions = "";
 			rule += String.format(DROOL_RULE_NAME, ruleBuilder.getRuleName());
 			rule += DROOL_WHEN;
