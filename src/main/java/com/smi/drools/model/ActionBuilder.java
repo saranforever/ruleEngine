@@ -1,16 +1,18 @@
 package com.smi.drools.model;
 
+import com.smi.drools.enumutil.EnrichmentEnum;
+
 public class ActionBuilder {
 
-	private String key;
+	private EnrichmentEnum key;
 
 	private String value;
 
-	public String getKey() {
+	public EnrichmentEnum getKey() {
 		return key;
 	}
 
-	public void setKey(String key) {
+	public void setKey(EnrichmentEnum key) {
 		this.key = key;
 	}
 

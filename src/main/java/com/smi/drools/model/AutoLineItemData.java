@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class AutoLineItemData{
-	
+public class AutoLineItemData {
+
 	private String autoLine;
 }

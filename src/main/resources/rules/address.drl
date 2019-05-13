@@ -1,12 +1,12 @@
 package plausibcheck.adress
 
 import com.smi.drools.model.Address;
-import com.smi.drools.model.fact.AddressCheckResult;
+import com.smi.drools.model.fact.BusinessRuleEnrichment;
 
 rule "Postcode should be filled with exactly 5 numbers"
     when
         address : Address(postcode != null, postcode matches "([0-9]{5})")
-        checkResult : AddressCheckResult();
+        checkResult : BusinessRuleEnrichment();
     then
         checkResult.setPostCodeResult(true);
 		System.out.println("Print logs in rules：Verification passed!");

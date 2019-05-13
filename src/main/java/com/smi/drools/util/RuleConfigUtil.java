@@ -6,67 +6,81 @@ import com.smi.drools.model.RuleBuilder;
 import com.smi.drools.model.RuleConfig;
 
 public class RuleConfigUtil {
-	
+
 	private static final String DROOL_PACKAGE = "package com.smi.drools;\r\n";
-	
+
 	private static final String DROOL_MODEL_PACKAGE = "import com.smi.drools.model.%s;\r\n";
-	
+
 	private static final String DROOL_RULE_NAME = "rule \"%s\"\r\n";
-	
+
 	private static final String DROOL_WHEN = "\twhen\r\n";
-	
+
 	private static final String DROOL_WHEN_BUILDER = "\t\t%s : %s(%s)\r\n";
-	
+
+	private static final String DROOL_CLASS_OBJECT = "\t\t%s : %s();\r\n";
+
 	private static final String DROOL_THEN = "\tthen\r\n";
-	
-	private static final String DROOL_THEN_BUILDER = "\t\tSystem.out.println(%s);\r\n";
-	
+
+	private static final String DROOL_THEN_BUILDER = "\t\t%s.%s;\r\n";
+
 	private static final String DROOL_END = "end\r\n\n";
-	
+
 	/**
 	 * @param ruleConfig
 	 * @return
 	 */
 	public static String buildRule(RuleConfig ruleConfig) {
-		
-		String rule = DROOL_PACKAGE;
-		rule += String.format(DROOL_MODEL_PACKAGE, ruleConfig.getModelType()); 
-		
+
+		StringBuilder ruleStrBuilder = new StringBuilder();
+		ruleStrBuilder.append(DROOL_PACKAGE);
+
+		ruleStrBuilder.append(String.format(DROOL_MODEL_PACKAGE, ruleConfig.getModelType()));
+
 		for (RuleBuilder ruleBuilder : ruleConfig.getRuleBuilders()) {
-			String conditions = "";
-			rule += String.format(DROOL_RULE_NAME, ruleBuilder.getRuleName());
-			rule += DROOL_WHEN;
-			
+			StringBuilder conditionStrBuilder = new StringBuilder();
+			ruleStrBuilder.append(String.format(DROOL_RULE_NAME, ruleBuilder.getRuleName()));
+			ruleStrBuilder.append(DROOL_WHEN);
+
 			for (ConditionBuilder conditionBuilder : ruleBuilder.getConditionBuilders()) {
-				conditions += conditionBuilder.getKey();
-				
+				conditionStrBuilder.append(conditionBuilder.getKey());
+
 				if (conditionBuilder.getFilter().equalsIgnoreCase("equals")) {
-					conditions += " == ";
+					conditionStrBuilder.append(" == ");
 				} else if (conditionBuilder.getFilter().equalsIgnoreCase("notequals")) {
-					conditions += " != ";
+					conditionStrBuilder.append(" != ");
 				}
-				conditions += "'"+conditionBuilder.getValue()+"'"; 
-				
+				conditionStrBuilder.append("'" + conditionBuilder.getValue() + "'");
+
 				if (conditionBuilder.getCondition() != null && !conditionBuilder.getCondition().isEmpty()) {
 					if (conditionBuilder.getCondition().equalsIgnoreCase("and")) {
-						conditions += " && ";
+						conditionStrBuilder.append(" && ");
 					}
-					
+
 					if (conditionBuilder.getCondition().equalsIgnoreCase("or")) {
-						conditions += " || ";
+						conditionStrBuilder.append(" || ");
 					}
 				}
 			}
-			
-			rule += String.format(DROOL_WHEN_BUILDER, ruleConfig.getModelType().toLowerCase(), ruleConfig.getModelType(), conditions);
-			rule += DROOL_THEN;
+
+			ruleStrBuilder.append(String.format(DROOL_WHEN_BUILDER, ruleConfig.getModelType().toLowerCase(),
+					ruleConfig.getModelType(), conditionStrBuilder.toString()));
+			int i = 0;
 			for (ActionBuilder actionBuilder : ruleBuilder.getActionBuilders()) {
-				rule += String.format(DROOL_THEN_BUILDER, actionBuilder.getValue());
+
+				ruleStrBuilder.append(String.format(DROOL_CLASS_OBJECT,
+						actionBuilder.getKey().className().toLowerCase(), actionBuilder.getKey().packageName()));
+				if (i == 0) {
+					ruleStrBuilder.append(DROOL_THEN);
+				}
+				ruleStrBuilder
+						.append(String.format(DROOL_THEN_BUILDER, actionBuilder.getKey().className().toLowerCase(),
+								actionBuilder.getValue() + "(" + ruleConfig.getModelType().toLowerCase() + ")"));
+				i++;
 			}
-			rule += DROOL_END;
+			ruleStrBuilder.append(DROOL_END);
 		}
-		
-		return rule;
+
+		return ruleStrBuilder.toString();
 	}
-	
+
 }

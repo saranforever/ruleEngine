@@ -1,12 +1,11 @@
 package com.smi.drools.model;
 
-
 public class Address {
 
 	private String postcode;
-	
+
 	private String street;
-	
+
 	private String state;
 
 	public String getPostcode() {
@@ -32,5 +31,5 @@ public class Address {
 	public void setState(String state) {
 		this.state = state;
 	}
-	
+
 }

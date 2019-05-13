@@ -12,7 +12,7 @@ import java.io.Serializable;
 public class Rule implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-    @Id
+	@Id
 	@GeneratedValue
 	private Long id;
 	@Column(nullable = false, unique = true)
@@ -73,8 +73,6 @@ public class Rule implements Serializable {
 	public void setCreateTime(String createTime) {
 		this.createTime = createTime;
 	}
-
-
 
 	@Override
 	public String toString() {

@@ -7,7 +7,7 @@ public class ConditionBuilder {
 	private String filter;
 
 	private String value;
-	
+
 	private String condition;
 
 	public String getKey() {
