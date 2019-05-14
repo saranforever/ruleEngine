@@ -1,7 +1,7 @@
 package com.smi.drools.service;
 
-import com.smi.drools.model.Rule;
-import com.smi.drools.repository.RuleRepository;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.kie.api.KieServices;
 import org.kie.api.builder.KieBuilder;
@@ -12,32 +12,35 @@ import org.kie.api.runtime.KieContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.smi.drools.model.Rule;
+import com.smi.drools.repository.RuleRepository;
 
 @Service
 public class ReloadDroolsRulesService {
 
 	public static KieContainer kieContainer;
+	
+	private static final String RULES_PATH = "src/main/resources/";
+	
+	private static final String RULES_FILE_EXTENSION = ".drl";
 
 	@Autowired
 	private RuleRepository ruleRepository;
 
 	public void reload() {
-		KieContainer kieContainer = loadContainerFromString(loadRules());
-		this.kieContainer = kieContainer;
+		KieContainer kieReloadedContainer = loadContainerFromString(loadRules());
+		ReloadDroolsRulesService.kieContainer = kieReloadedContainer;
 	}
 
 	public void reload(Rule rule) {
 		List<Rule> rules = new ArrayList<Rule>();
 		rules.add(rule);
-		KieContainer kieContainer = loadContainerFromString(rules);
-		this.kieContainer = kieContainer;
+		KieContainer kieReloadedContainer = loadContainerFromString(rules);
+		ReloadDroolsRulesService.kieContainer = kieReloadedContainer;
 	}
 
 	private List<Rule> loadRules() {
-		List<Rule> rules = ruleRepository.findAll();
-		return rules;
+		return ruleRepository.findAll();
 	}
 
 	private KieContainer loadContainerFromString(List<Rule> rules) {
@@ -48,7 +51,7 @@ public class ReloadDroolsRulesService {
 
 		for (Rule rule : rules) {
 			String drl = rule.getContent();
-			kfs.write("src/main/resources/" + drl.hashCode() + ".drl", drl);
+			kfs.write(RULES_PATH + drl.hashCode() + RULES_FILE_EXTENSION, drl);
 		}
 
 		KieBuilder kb = ks.newKieBuilder(kfs);
