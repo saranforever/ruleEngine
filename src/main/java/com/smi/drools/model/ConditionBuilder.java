@@ -1,45 +1,54 @@
 package com.smi.drools.model;
 
-public class ConditionBuilder {
+import java.io.Serializable;
 
-	private String key;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-	private String filter;
+import com.smi.drools.enumutil.ConditionalEnum;
+import com.smi.drools.enumutil.FilterEnum;
+import com.smi.drools.enumutil.ModelTypeEnum;
 
-	private String value;
+import lombok.Data;
 
-	private String condition;
+@Entity
+@Table(name = "CONDITION_BUILDER")
+@Data
+public class ConditionBuilder implements Serializable {
 
-	public String getKey() {
-		return key;
-	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6304967507216851931L;
 
-	public void setKey(String key) {
-		this.key = key;
-	}
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "condition_builder_id")
+	private Long id;
 
-	public String getFilter() {
-		return filter;
-	}
+	@Column(name = "modelType")
+	private ModelTypeEnum modelType;
 
-	public void setFilter(String filter) {
-		this.filter = filter;
-	}
+	@Column(name = "metaField")
+	private String metaField;
 
-	public String getValue() {
-		return value;
-	}
+	@Column(name = "filter")
+	private FilterEnum filter;
 
-	public void setValue(String value) {
-		this.value = value;
-	}
+	@Column(name = "metaValue")
+	private String metaValue;
 
-	public String getCondition() {
-		return condition;
-	}
+	@Column(name = "conditionOperator")
+	private ConditionalEnum conditionOperator;
 
-	public void setCondition(String condition) {
-		this.condition = condition;
-	}
+	@ManyToOne
+	@JoinColumn
+	private RuleBuilder ruleBuilder;
 
 }

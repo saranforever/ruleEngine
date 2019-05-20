@@ -14,11 +14,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
-import com.smi.drools.service.ReloadDroolsRulesService;
+import com.smi.drools.util.ReloadDroolsRulesService;
 
 import java.io.IOException;
 
-@Configuration
+/*@Configuration*/
 public class DroolsAutoConfiguration {
 
 	private static final String RULES_PATH = "rules/";
@@ -42,7 +42,7 @@ public class DroolsAutoConfiguration {
 	@ConditionalOnMissingBean(KieContainer.class)
 	public KieContainer kieContainer() throws IOException {
 		final KieRepository kieRepository = getKieServices().getRepository();
-		
+
 		kieRepository.addKieModule(new KieModule() {
 			public ReleaseId getReleaseId() {
 				return kieRepository.getDefaultReleaseId();
@@ -54,7 +54,7 @@ public class DroolsAutoConfiguration {
 
 		KieContainer kieContainer = getKieServices().newKieContainer(kieRepository.getDefaultReleaseId());
 
-		ReloadDroolsRulesService.kieContainer = kieContainer;
+/*		ReloadDroolsRulesService.kieContainer = kieContainer;*/
 
 		return kieContainer;
 	}

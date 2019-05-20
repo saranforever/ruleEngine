@@ -1,6 +1,6 @@
-package com.smi.drools.service;
+package com.smi.drools.util;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 import org.kie.api.KieServices;
@@ -10,44 +10,54 @@ import org.kie.api.builder.KieRepository;
 import org.kie.api.builder.Message;
 import org.kie.api.runtime.KieContainer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
+import com.smi.drools.dao.RuleRepository;
 import com.smi.drools.model.Rule;
-import com.smi.drools.repository.RuleRepository;
 
 @Service
 public class ReloadDroolsRulesService {
 
-	public static KieContainer kieContainer;
+	private KieContainer kieContainer;
 	
+	private KieFileSystem kfs;  
+
 	private static final String RULES_PATH = "src/main/resources/";
-	
+
 	private static final String RULES_FILE_EXTENSION = ".drl";
 
 	@Autowired
 	private RuleRepository ruleRepository;
-
+	
 	public void reload() {
-		KieContainer kieReloadedContainer = loadContainerFromString(loadRules());
-		ReloadDroolsRulesService.kieContainer = kieReloadedContainer;
+		try {
+			this.kieContainer = loadContainerFromString(loadRules());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void reload(Rule rule) {
-		List<Rule> rules = new ArrayList<Rule>();
-		rules.add(rule);
-		KieContainer kieReloadedContainer = loadContainerFromString(rules);
-		ReloadDroolsRulesService.kieContainer = kieReloadedContainer;
+		addRule(rule);
 	}
 
 	private List<Rule> loadRules() {
 		return ruleRepository.findAll();
 	}
 
-	private KieContainer loadContainerFromString(List<Rule> rules) {
+	private Resource[] getRuleFiles() throws IOException {
+		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+		return resourcePatternResolver.getResources("classpath*:" + RULES_PATH + "**/*.*");
+	}
+
+	private KieContainer loadContainerFromString(List<Rule> rules) throws IOException {
 		long startTime = System.currentTimeMillis();
 		KieServices ks = KieServices.Factory.get();
 		KieRepository kr = ks.getRepository();
-		KieFileSystem kfs = ks.newKieFileSystem();
+		this.kfs = ks.newKieFileSystem();
 
 		for (Rule rule : rules) {
 			String drl = rule.getContent();
@@ -63,10 +73,19 @@ public class ReloadDroolsRulesService {
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time to build rules : " + (endTime - startTime) + " ms");
 		startTime = System.currentTimeMillis();
-		KieContainer kContainer = ks.newKieContainer(kr.getDefaultReleaseId());
+		this.kieContainer = ks.newKieContainer(kr.getDefaultReleaseId());
 		endTime = System.currentTimeMillis();
 		System.out.println("Time to load container: " + (endTime - startTime) + " ms");
-		return kContainer;
+		return this.kieContainer;
+	}
+	
+	private void addRule(Rule rule) {
+		String drl = rule.getContent();
+		this.kfs.write(RULES_PATH + drl.hashCode() + RULES_FILE_EXTENSION, drl);
+	}
+
+	public KieContainer getKieContainer() {
+		return this.kieContainer;
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.smi.drools.repository;
+package com.smi.drools.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

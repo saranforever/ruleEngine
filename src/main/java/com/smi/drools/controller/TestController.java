@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Resource;
+import java.util.Set;
 
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smi.drools.enumutil.ConditionalEnum;
 import com.smi.drools.enumutil.EnrichmentEnum;
+import com.smi.drools.enumutil.FilterEnum;
 import com.smi.drools.model.ActionBuilder;
 import com.smi.drools.model.Address;
 import com.smi.drools.model.Amount;
@@ -25,7 +28,6 @@ import com.smi.drools.model.ConditionBuilder;
 import com.smi.drools.model.CustomerDocument;
 import com.smi.drools.model.CustomerDocumentContext;
 import com.smi.drools.model.Description;
-import com.smi.drools.model.DocumentContext;
 import com.smi.drools.model.FieldData;
 import com.smi.drools.model.FieldValue;
 import com.smi.drools.model.LineItemData;
@@ -38,27 +40,28 @@ import com.smi.drools.model.RuleTestConfig;
 import com.smi.drools.model.UnitPrice;
 import com.smi.drools.model.Validation;
 import com.smi.drools.model.fact.BusinessRuleEnrichment;
-import com.smi.drools.repository.RuleRepository;
-import com.smi.drools.service.ReloadDroolsRulesService;
+import com.smi.drools.model.fact.NumberEnrichment;
+import com.smi.drools.service.IRuleService;
+import com.smi.drools.util.ReloadDroolsRulesService;
 import com.smi.drools.util.RuleConfigUtil;
 
 @RequestMapping("/test")
 @Controller
 public class TestController {
 
-	@Resource
-	private ReloadDroolsRulesService rules;
+	@Autowired
+	private ReloadDroolsRulesService reloadDroolsRulesService;
 
 	@Autowired
-	private RuleRepository ruleRepository;
+	private IRuleService ruleService;
 
 	@ResponseBody
 	@RequestMapping("/address")
 	public void test(int num) {
 		Address address = new Address();
 		address.setPostcode(generateRandom(num));
-		KieSession kieSession = ReloadDroolsRulesService.kieContainer.newKieSession();
-
+		KieSession kieSession = reloadDroolsRulesService.getKieContainer().newKieSession();
+		
 		BusinessRuleEnrichment result = new BusinessRuleEnrichment();
 		kieSession.insert(address);
 		kieSession.insert(result);
@@ -75,7 +78,7 @@ public class TestController {
 	@ResponseBody
 	@RequestMapping("/testmsg")
 	public void testMessage() {
-		KieSession kieSession = ReloadDroolsRulesService.kieContainer.newKieSession();
+		KieSession kieSession = reloadDroolsRulesService.getKieContainer().newKieSession();
 
 		Message message = new Message();
 		message.setStatus(1);
@@ -89,39 +92,62 @@ public class TestController {
 	}
 
 	@ResponseBody
-	@RequestMapping("/testdoccontext")
-	public void testDocumentContext() {
-
-		DocumentContext documentContext = new DocumentContext();
-		documentContext.setDocumentType("EDI");
-		documentContext.setDocumentVersion("00401");
-		documentContext.setSenderEid("1124");
-
-		CustomerDocument customerDocument = new CustomerDocument();
-		customerDocument.setSenderEid("S123");
-		customerDocument.setReceiverEid("R123");
-
-		KieSession kieSession = ReloadDroolsRulesService.kieContainer.newKieSession();
+	@PostMapping("/testdoccontext")
+	public CustomerDocument testDocumentContext(@RequestBody CustomerDocument customerDocument) {
+		KieSession kieSession = reloadDroolsRulesService.getKieContainer().newKieSession();
+		
 		kieSession.insert(customerDocument);
+		Map<Integer, CustomerDocumentContext> customerDocumentsContextMap = customerDocument.getCustomerDocumentsContextMap();
+		Set<Integer> keySet = customerDocumentsContextMap.keySet();
+		keySet.stream().forEach(key -> {
+			CustomerDocumentContext customerDocumentContext = customerDocumentsContextMap.get(key);
+			// AutoLine Data
+			if (customerDocumentContext.getAutoLineItemData() != null) {
+				kieSession.insert(customerDocumentContext.getAutoLineItemData());
+			}
+			
+			// FieldData
+			customerDocumentContext.getFieldDatas().stream().forEach(fieldData -> {
+				kieSession.insert(fieldData);
+				fieldData.getFieldValues().stream().forEach(fieldValue -> {
+					kieSession.insert(fieldValue);
+				});
+			});
+			
+			//Line Item Data
+			customerDocumentContext.getLineItemDatas().stream().forEach(lineItemData -> {
+				kieSession.insert(lineItemData);
+				kieSession.insert(lineItemData.getAmount());
+				kieSession.insert(lineItemData.getQty());
+				kieSession.insert(lineItemData.getUnitPrice());
+				kieSession.insert(lineItemData.getDescription());
+			});
+		});
+		
+		BusinessRuleEnrichment businessRuleEnrichment = new BusinessRuleEnrichment();
+		kieSession.insert(businessRuleEnrichment);
+		
+		NumberEnrichment numberEnrichment = new NumberEnrichment();
+		kieSession.insert(numberEnrichment);
+		
 		int ruleFiredCount = kieSession.fireAllRules();
 		kieSession.destroy();
 		System.out.println("Triggered" + ruleFiredCount + "DocumentContext");
-
+		return customerDocument;
 	}
 
 	@ResponseBody
 	@PostMapping("/createdocumentcontextrule")
 	public String createDocRule(@RequestBody RuleConfig ruleConfig) {
 		String ruleStr = RuleConfigUtil.buildRule(ruleConfig);
-
+		
 		Rule rule = new Rule();
 		rule.setContent(ruleStr);
 		rule.setCreateTime("");
-		rule.setRuleKey(ruleConfig.getModelType());
-		rule.setVersion("4");
+		rule.setVersion("7");
 
-		ruleRepository.save(rule);
-		rules.reload();
+		ruleService.save(rule, ruleConfig);
+		/*reloadDroolsRulesService.reload();*/
 
 		return "rule created";
 	}
@@ -144,8 +170,8 @@ public class TestController {
 		rule.setRuleKey("score");
 		rule.setVersion("1");
 
-		ruleRepository.save(rule);
-		rules.reload();
+		ruleService.save(rule, null);
+		reloadDroolsRulesService.reload();
 
 		return "rule created";
 	}
@@ -157,7 +183,7 @@ public class TestController {
 	@ResponseBody
 	@RequestMapping("/reload")
 	public String reload() throws IOException {
-		rules.reload();
+		reloadDroolsRulesService.reload();
 		return "ok";
 	}
 
@@ -181,19 +207,19 @@ public class TestController {
 		RuleBuilder ruleBuilder = new RuleBuilder();
 		ruleBuilder.setRuleName("Rule2");
 		ConditionBuilder conditionBuilder = new ConditionBuilder();
-		conditionBuilder.setFilter("equals");
-		conditionBuilder.setKey("documentType");
-		conditionBuilder.setValue("EDI");
-		conditionBuilder.setCondition("and");
-		List<ConditionBuilder> conditionBuilders = new ArrayList<ConditionBuilder>();
+		conditionBuilder.setFilter(FilterEnum.EQUALS);
+		conditionBuilder.setMetaField("documentType");
+		conditionBuilder.setMetaValue("EDI");
+		conditionBuilder.setConditionOperator(ConditionalEnum.AND);
+		List<ConditionBuilder> conditionBuilders = new ArrayList<>();
 		conditionBuilders.add(conditionBuilder);
 
 		ActionBuilder actionBuilder1 = new ActionBuilder();
-		actionBuilder1.setKey(EnrichmentEnum.BUSINESSRULEENRICHMENT);
-		actionBuilder1.setValue("123");
+		actionBuilder1.setEnrichement(EnrichmentEnum.BUSINESSRULEENRICHMENT);
+		actionBuilder1.setEnrichmentAction("123");
 		ActionBuilder actionBuilder2 = new ActionBuilder();
-		actionBuilder2.setKey(EnrichmentEnum.BUSINESSRULEENRICHMENT);
-		actionBuilder2.setValue("321");
+		actionBuilder2.setEnrichement(EnrichmentEnum.BUSINESSRULEENRICHMENT);
+		actionBuilder2.setEnrichmentAction("321");
 		List<ActionBuilder> actionBuilders = new ArrayList<ActionBuilder>();
 		actionBuilders.add(actionBuilder1);
 		actionBuilders.add(actionBuilder2);
@@ -277,32 +303,37 @@ public class TestController {
 		lineValidation.setReason("Nil");
 		lineValidation.setResult("Nil");
 
-		// >>>>>>>>>>>>Build LineItemData1<<<<<<<<<<<
-		Amount amount1 = new Amount();
-		amount1.setValidation(lineValidation);
-		amount1.setValue("1,350.00 ");
-
-		UnitPrice unitPrice1 = new UnitPrice();
-		unitPrice1.setValidation(lineValidation);
-		unitPrice1.setValue("450.00 ");
-
-		Description description1 = new Description();
-		description1.setValidation(lineValidation);
-		description1.setValue("Desk Combination ");
-
-		Qty qty1 = new Qty();
-		qty1.setValidation(lineValidation);
-		qty1.setValue("3 ");
-
-		LineItemData lineItemData1 = new LineItemData();
-		lineItemData1.setAmount(amount1);
-		lineItemData1.setUnitPrice(unitPrice1);
-		lineItemData1.setDescription(description1);
-		lineItemData1.setQty(qty1);
-		// ------------EOR-------------------------
+		List<LineItemData> lineItemDatas = new ArrayList<LineItemData>();
+		double amount = 1000.70; 
+		for (int i = 0; i < 1000; i++) {
+			// >>>>>>>>>>>>Build LineItemData1<<<<<<<<<<<
+			Amount amount1 = new Amount();
+			amount1.setValidation(lineValidation);
+			amount1.setValue((amount + 1.11) + "");
+			
+			UnitPrice unitPrice1 = new UnitPrice();
+			unitPrice1.setValidation(lineValidation);
+			unitPrice1.setValue("450.00 ");
+			
+			Description description1 = new Description();
+			description1.setValidation(lineValidation);
+			description1.setValue("Desk Combination ");
+			
+			Qty qty1 = new Qty();
+			qty1.setValidation(lineValidation);
+			qty1.setValue("3 ");
+			
+			LineItemData lineItemData1 = new LineItemData();
+			lineItemData1.setAmount(amount1);
+			lineItemData1.setUnitPrice(unitPrice1);
+			lineItemData1.setDescription(description1);
+			lineItemData1.setQty(qty1);
+			lineItemDatas.add(lineItemData1);
+			// ------------EOR-------------------------
+		}
 
 		// >>>>>>>>>>>>Build LineItemData2<<<<<<<<<<<
-		Amount amount2 = new Amount();
+		/*Amount amount2 = new Amount();
 		amount2.setValidation(lineValidation);
 		amount2.setValue("225.00 ");
 
@@ -322,11 +353,11 @@ public class TestController {
 		lineItemData2.setAmount(amount2);
 		lineItemData2.setUnitPrice(unitPrice2);
 		lineItemData2.setDescription(description2);
-		lineItemData2.setQty(qty2);
+		lineItemData2.setQty(qty2);*/
 		// ------------EOR-------------------------
 
 		// >>>>>>>>>>>>Build LineItemData2<<<<<<<<<<<
-		Amount amount3 = new Amount();
+		/*Amount amount3 = new Amount();
 		amount3.setValidation(lineValidation);
 		amount3.setValue("4,002.00 ");
 
@@ -346,13 +377,11 @@ public class TestController {
 		lineItemData3.setAmount(amount3);
 		lineItemData3.setUnitPrice(unitPrice3);
 		lineItemData3.setDescription(description3);
-		lineItemData3.setQty(qty3);
+		lineItemData3.setQty(qty3);*/
 		// ------------EOR-------------------------
 
-		List<LineItemData> lineItemDatas = new ArrayList<LineItemData>();
-		lineItemDatas.add(lineItemData1);
-		lineItemDatas.add(lineItemData2);
-		lineItemDatas.add(lineItemData3);
+		/*lineItemDatas.add(lineItemData2);
+		lineItemDatas.add(lineItemData3);*/
 		return lineItemDatas;
 	}
 
@@ -365,24 +394,25 @@ public class TestController {
 		customerDocumentContext.setFieldDatas(this.buildFieldData());
 		customerDocumentContext.setLineItemDatas(this.buildLineItemData());
 
-		Map<Integer, CustomerDocumentContext> customerMap = new HashMap<Integer, CustomerDocumentContext>();
+		Map<Integer, CustomerDocumentContext> customerMap = new HashMap<>();
 		customerMap.put(1, customerDocumentContext);
 
 		CustomerDocument customerDocument1 = new CustomerDocument();
 		customerDocument1.setSenderEid("S123");
 		customerDocument1.setReceiverEid("R123");
 		customerDocument1.setCustomerDocumentsContextMap(customerMap);
+		
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			System.out.println(mapper.writeValueAsString(customerDocument1));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 
-		CustomerDocument customerDocument2 = new CustomerDocument();
-		customerDocument2.setSenderEid("3333");
-		customerDocument2.setReceiverEid("4444");
-		customerDocument2.setCustomerDocumentsContextMap(customerMap);
-
-		List<CustomerDocument> customerDocuments = new ArrayList<CustomerDocument>();
+		List<CustomerDocument> customerDocuments = new ArrayList<>();
 		customerDocuments.add(customerDocument1);
-		customerDocuments.add(customerDocument2);
 
-		KieSession kieSession = ReloadDroolsRulesService.kieContainer.newKieSession();
+		KieSession kieSession = reloadDroolsRulesService.getKieContainer().newKieSession();
 
 		BusinessRuleEnrichment businessRuleEnrichment = new BusinessRuleEnrichment();
 		kieSession.insert(customerDocument1);
