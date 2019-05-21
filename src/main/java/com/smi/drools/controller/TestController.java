@@ -41,6 +41,7 @@ import com.smi.drools.model.UnitPrice;
 import com.smi.drools.model.Validation;
 import com.smi.drools.model.fact.BusinessRuleEnrichment;
 import com.smi.drools.model.fact.NumberEnrichment;
+import com.smi.drools.service.IRuleConfigService;
 import com.smi.drools.service.IRuleService;
 import com.smi.drools.util.ReloadDroolsRulesService;
 import com.smi.drools.util.RuleConfigUtil;
@@ -52,8 +53,10 @@ public class TestController {
 	@Autowired
 	private ReloadDroolsRulesService reloadDroolsRulesService;
 
+	/*@Autowired
+	private IRuleService ruleService;*/
 	@Autowired
-	private IRuleService ruleService;
+	private IRuleConfigService ruleConfigService;
 
 	@ResponseBody
 	@RequestMapping("/address")
@@ -130,8 +133,11 @@ public class TestController {
 		NumberEnrichment numberEnrichment = new NumberEnrichment();
 		kieSession.insert(numberEnrichment);
 		
+		long startTime = System.currentTimeMillis();
 		int ruleFiredCount = kieSession.fireAllRules();
 		kieSession.destroy();
+		long endTime = System.currentTimeMillis();
+		System.out.println("Time to fetch and fire rule: " + (endTime - startTime) + " ms");
 		System.out.println("Triggered" + ruleFiredCount + "DocumentContext");
 		return customerDocument;
 	}
@@ -146,9 +152,8 @@ public class TestController {
 		rule.setCreateTime("");
 		rule.setVersion("7");
 
-		ruleService.save(rule, ruleConfig);
-		/*reloadDroolsRulesService.reload();*/
-
+		ruleConfigService.save(rule, ruleConfig);
+		this.reloadDroolsRulesService.addRule(rule);
 		return "rule created";
 	}
 
@@ -170,7 +175,7 @@ public class TestController {
 		rule.setRuleKey("score");
 		rule.setVersion("1");
 
-		ruleService.save(rule, null);
+		ruleConfigService.save(rule, null);
 		reloadDroolsRulesService.reload();
 
 		return "rule created";

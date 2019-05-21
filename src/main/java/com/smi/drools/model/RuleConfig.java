@@ -10,7 +10,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,6 +48,13 @@ public class RuleConfig implements Serializable {
 
 	@OneToMany(mappedBy = "ruleConfig", cascade = CascadeType.ALL)
     private List<RuleBuilder> ruleBuilders;
+	
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "rule_id", referencedColumnName = "id")
+	private Rule rule;
+	
+	@Column(name = "enable")
+	private boolean enable;
 
 	public static void main(String[] args) {
 		RuleConfig ruleConfig = new RuleConfig();

@@ -12,15 +12,14 @@ import com.smi.drools.model.ConditionBuilder;
 import com.smi.drools.model.Rule;
 import com.smi.drools.model.RuleBuilder;
 import com.smi.drools.model.RuleConfig;
-import com.smi.drools.service.IRuleService;
+import com.smi.drools.service.IRuleConfigService;
 
 @Service
-public class RuleServiceImpl implements IRuleService {
-	
+public class RuleConfigServiceImpl implements IRuleConfigService {
 	
 	@Autowired
 	private RuleConfigRepository ruleConfigRepository;
-	
+
 	@Override
 	public void save(Rule rule, RuleConfig ruleConfig) {
 		
@@ -50,7 +49,6 @@ public class RuleServiceImpl implements IRuleService {
 		rule.setRuleKey(ruleConfig.getName());
 		ruleConfig.setRule(rule);
 		ruleConfigRepository.save(ruleConfig);
-		/*ruleRepository.save(rule);*/
 	}
 
 }

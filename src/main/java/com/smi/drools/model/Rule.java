@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -28,7 +29,7 @@ public class Rule implements Serializable {
 	@Column(nullable = false, columnDefinition = "TEXT")
 	private String content;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String version;
 
 	@Column(nullable = true)
@@ -36,4 +37,10 @@ public class Rule implements Serializable {
 
 	@Column(nullable = false)
 	private String createTime;
+	
+	@OneToOne(mappedBy = "rule")
+	private RuleConfig ruleConfig;
+	
+	@Column(name = "enable")
+	private boolean enable;
 }

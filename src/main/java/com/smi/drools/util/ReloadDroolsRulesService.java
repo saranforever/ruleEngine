@@ -10,6 +10,7 @@ import org.kie.api.builder.KieRepository;
 import org.kie.api.builder.Message;
 import org.kie.api.runtime.KieContainer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -31,13 +32,21 @@ public class ReloadDroolsRulesService {
 
 	@Autowired
 	private RuleRepository ruleRepository;
+
+	private KieServices ks;
+
+	private KieBuilder kb;
+
+	private KieRepository kr;
 	
-	public void reload() {
+	@Bean
+	public KieContainer reload() {
 		try {
 			this.kieContainer = loadContainerFromString(loadRules());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return kieContainer;
 	}
 
 	public void reload(Rule rule) {
@@ -53,35 +62,42 @@ public class ReloadDroolsRulesService {
 		return resourcePatternResolver.getResources("classpath*:" + RULES_PATH + "**/*.*");
 	}
 
+
 	private KieContainer loadContainerFromString(List<Rule> rules) throws IOException {
 		long startTime = System.currentTimeMillis();
-		KieServices ks = KieServices.Factory.get();
-		KieRepository kr = ks.getRepository();
-		this.kfs = ks.newKieFileSystem();
+		this.ks = KieServices.Factory.get();
+		this.kr = this.ks.getRepository();
+		this.kfs = this.ks.newKieFileSystem();
 
 		for (Rule rule : rules) {
 			String drl = rule.getContent();
-			kfs.write(RULES_PATH + drl.hashCode() + RULES_FILE_EXTENSION, drl);
+			this.kfs.write(RULES_PATH + drl.hashCode() + RULES_FILE_EXTENSION, drl);
 		}
 
-		KieBuilder kb = ks.newKieBuilder(kfs);
+		this.kb = this.ks.newKieBuilder(this.kfs);
 
-		kb.buildAll();
-		if (kb.getResults().hasMessages(Message.Level.ERROR)) {
+		this.kb.buildAll();
+		if (this.kb.getResults().hasMessages(Message.Level.ERROR)) {
 			throw new RuntimeException("Build Errors:\n" + kb.getResults().toString());
 		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("Time to build rules : " + (endTime - startTime) + " ms");
 		startTime = System.currentTimeMillis();
-		this.kieContainer = ks.newKieContainer(kr.getDefaultReleaseId());
+		this.kieContainer = this.ks.newKieContainer(kr.getDefaultReleaseId());
 		endTime = System.currentTimeMillis();
 		System.out.println("Time to load container: " + (endTime - startTime) + " ms");
 		return this.kieContainer;
 	}
 	
-	private void addRule(Rule rule) {
+	public void addRule(Rule rule) {
 		String drl = rule.getContent();
 		this.kfs.write(RULES_PATH + drl.hashCode() + RULES_FILE_EXTENSION, drl);
+		this.kb = this.ks.newKieBuilder(this.kfs);
+		this.kb.buildAll();
+		if (this.kb.getResults().hasMessages(Message.Level.ERROR)) {
+			throw new RuntimeException("Build Errors:\n" + kb.getResults().toString());
+		}
+		this.kieContainer = this.ks.newKieContainer(this.kr.getDefaultReleaseId());
 	}
 
 	public KieContainer getKieContainer() {

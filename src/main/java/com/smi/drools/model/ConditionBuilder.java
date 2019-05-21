@@ -22,10 +22,11 @@ import lombok.Data;
 @Data
 public class ConditionBuilder implements Serializable {
 
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 6304967507216851931L;
+	private static final long serialVersionUID = 2975943670431717849L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
