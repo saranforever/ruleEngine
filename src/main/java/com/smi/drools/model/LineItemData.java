@@ -14,14 +14,14 @@ public class LineItemData implements Serializable {
 	private static final long serialVersionUID = 1335079594093680644L;
 	
 	@JsonProperty(value = "AMOUNT")
-	private Amount amount;
+	private FieldValue amount;
 	
 	@JsonProperty(value = "UNIT PRICE")
-	private UnitPrice unitPrice;
+	private FieldValue unitPrice;
 	
 	@JsonProperty(value = "DESCRIPTION")
-	private Description description;
+	private FieldValue description;
 	
 	@JsonProperty(value = "QTY")
-	private Qty qty;
+	private FieldValue qty;
 }

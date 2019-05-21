@@ -10,17 +10,13 @@ import org.kie.api.builder.KieRepository;
 import org.kie.api.builder.Message;
 import org.kie.api.runtime.KieContainer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
 import com.smi.drools.dao.RuleRepository;
-import com.smi.drools.model.Rule;
+import com.smi.drools.entity.Rule;
 
 @Service
-public class ReloadDroolsRulesService {
+public class DroolsRulesService {
 
 	private KieContainer kieContainer;
 	
@@ -39,14 +35,18 @@ public class ReloadDroolsRulesService {
 
 	private KieRepository kr;
 	
-	@Bean
-	public KieContainer reload() {
+	@Autowired
+	public DroolsRulesService(RuleRepository ruleRepository) {
+		this.ruleRepository = ruleRepository;
+		reload();
+	}
+	
+	public void reload() {
 		try {
 			this.kieContainer = loadContainerFromString(loadRules());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return kieContainer;
 	}
 
 	public void reload(Rule rule) {
@@ -56,12 +56,6 @@ public class ReloadDroolsRulesService {
 	private List<Rule> loadRules() {
 		return ruleRepository.findAll();
 	}
-
-	private Resource[] getRuleFiles() throws IOException {
-		ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-		return resourcePatternResolver.getResources("classpath*:" + RULES_PATH + "**/*.*");
-	}
-
 
 	private KieContainer loadContainerFromString(List<Rule> rules) throws IOException {
 		long startTime = System.currentTimeMillis();

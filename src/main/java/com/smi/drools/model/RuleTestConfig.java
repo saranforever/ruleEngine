@@ -2,6 +2,8 @@ package com.smi.drools.model;
 
 import java.util.List;
 
+import com.smi.drools.entity.RuleBuilder;
+
 public class RuleTestConfig {
 
 	private String modelType;

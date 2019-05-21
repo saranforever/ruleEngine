@@ -28,7 +28,7 @@ public enum ModelTypeEnum {
 	public String className() {
 		return className;
 	}
-	
+
 	public ModelTypeEnum parent() {
 		return parent;
 	}

@@ -1,4 +1,4 @@
-package com.smi.drools.model;
+package com.smi.drools.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,31 +28,30 @@ import lombok.Data;
 @Table(name = "RULE_CONFIG")
 @Data
 public class RuleConfig implements Serializable {
-	
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 859456017285881118L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
-	
+
 	@Column(name = "name", nullable = false, unique = true)
 	private String name;
-	
+
 	@Column(name = "ruleDescription")
 	private String ruleDescription;
 
 	@OneToMany(mappedBy = "ruleConfig", cascade = CascadeType.ALL)
-    private List<RuleBuilder> ruleBuilders;
-	
+	private List<RuleBuilder> ruleBuilders;
+
 	@OneToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "rule_id", referencedColumnName = "id")
 	private Rule rule;
-	
+
 	@Column(name = "enable")
 	private boolean enable;
 

@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.smi.drools.dao.RuleConfigRepository;
-import com.smi.drools.model.ActionBuilder;
-import com.smi.drools.model.ConditionBuilder;
-import com.smi.drools.model.Rule;
-import com.smi.drools.model.RuleBuilder;
-import com.smi.drools.model.RuleConfig;
+import com.smi.drools.entity.ActionBuilder;
+import com.smi.drools.entity.ConditionBuilder;
+import com.smi.drools.entity.Rule;
+import com.smi.drools.entity.RuleBuilder;
+import com.smi.drools.entity.RuleConfig;
 import com.smi.drools.service.IRuleConfigService;
 
 @Service

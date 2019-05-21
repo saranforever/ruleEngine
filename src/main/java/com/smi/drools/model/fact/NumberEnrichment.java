@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.smi.drools.model.Amount;
 import com.smi.drools.model.CustomerDocument;
 import com.smi.drools.model.CustomerDocumentContext;
+import com.smi.drools.model.FieldValue;
 import com.smi.drools.model.LineItemData;
 
 public class NumberEnrichment {
@@ -20,7 +20,7 @@ public class NumberEnrichment {
 			CustomerDocumentContext customerDocumentContext = cMap.get(key);
 			List<LineItemData> lineItemDatas = customerDocumentContext.getLineItemDatas();
 			for (LineItemData lineItemData : lineItemDatas) {
-				Amount amount = lineItemData.getAmount();
+				FieldValue amount = lineItemData.getAmount();
 				String value = amount.getValue();
 				value = value.replace(",", "");
 				double round = Math.ceil(Double.parseDouble(value));

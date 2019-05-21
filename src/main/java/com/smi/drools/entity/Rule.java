@@ -1,4 +1,4 @@
-package com.smi.drools.model;
+package com.smi.drools.entity;
 
 import java.io.Serializable;
 
@@ -18,7 +18,7 @@ import lombok.Data;
 public class Rule implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -37,10 +37,10 @@ public class Rule implements Serializable {
 
 	@Column(nullable = false)
 	private String createTime;
-	
+
 	@OneToOne(mappedBy = "rule")
 	private RuleConfig ruleConfig;
-	
+
 	@Column(name = "enable")
 	private boolean enable;
 }

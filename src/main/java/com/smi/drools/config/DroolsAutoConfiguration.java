@@ -14,7 +14,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
-import com.smi.drools.util.ReloadDroolsRulesService;
+import com.smi.drools.util.DroolsRulesService;
 
 import java.io.IOException;
 
@@ -54,7 +54,7 @@ public class DroolsAutoConfiguration {
 
 		KieContainer kieContainer = getKieServices().newKieContainer(kieRepository.getDefaultReleaseId());
 
-/*		ReloadDroolsRulesService.kieContainer = kieContainer;*/
+		/* ReloadDroolsRulesService.kieContainer = kieContainer; */
 
 		return kieContainer;
 	}

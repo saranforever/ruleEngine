@@ -1,4 +1,4 @@
-package com.smi.drools.model;
+package com.smi.drools.entity;
 
 import java.io.Serializable;
 import java.util.List;
@@ -32,13 +32,13 @@ public class RuleBuilder implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
 	private Long id;
-	
+
 	@Column(name = "modelType")
 	private ModelTypeEnum modelType;
 
 	@Column(name = "ruleName", nullable = false)
 	private String ruleName;
-	
+
 	@Column(name = "ruleGroupName", nullable = true, unique = true)
 	private String ruleGroupName;
 

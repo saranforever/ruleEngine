@@ -10,7 +10,7 @@ public enum FilterEnum {
 	FilterEnum(String displayName) {
 		this.displayName = displayName;
 	}
-	
+
 	FilterEnum(String displayName, String symbol) {
 		this.displayName = displayName;
 		this.symbol = symbol;
@@ -19,7 +19,7 @@ public enum FilterEnum {
 	public String packageName() {
 		return displayName;
 	}
-	
+
 	public String symbol() {
 		return symbol;
 	}

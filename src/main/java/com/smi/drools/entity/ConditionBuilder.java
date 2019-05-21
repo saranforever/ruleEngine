@@ -1,4 +1,4 @@
-package com.smi.drools.model;
+package com.smi.drools.entity;
 
 import java.io.Serializable;
 
@@ -21,7 +21,6 @@ import lombok.Data;
 @Table(name = "CONDITION_BUILDER")
 @Data
 public class ConditionBuilder implements Serializable {
-
 
 	/**
 	 * 

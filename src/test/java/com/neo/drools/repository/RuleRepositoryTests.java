@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.smi.drools.dao.RuleRepository;
-import com.smi.drools.model.Rule;
+import com.smi.drools.entity.Rule;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

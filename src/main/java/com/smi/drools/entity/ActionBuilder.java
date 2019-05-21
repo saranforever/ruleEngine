@@ -1,4 +1,4 @@
-package com.smi.drools.model;
+package com.smi.drools.entity;
 
 import java.io.Serializable;
 

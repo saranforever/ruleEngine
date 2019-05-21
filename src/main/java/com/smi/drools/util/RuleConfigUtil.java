@@ -6,11 +6,11 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.smi.drools.entity.RuleConfig;
 import com.smi.drools.enumutil.ConditionalEnum;
 import com.smi.drools.enumutil.EnrichmentEnum;
 import com.smi.drools.enumutil.FilterEnum;
 import com.smi.drools.enumutil.ModelTypeEnum;
-import com.smi.drools.model.RuleConfig;
 
 public class RuleConfigUtil {
 
