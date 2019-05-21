@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,6 +18,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smi.drools.audit.RuleConfigEntityListener;
 import com.smi.drools.enumutil.ConditionalEnum;
 import com.smi.drools.enumutil.EnrichmentEnum;
 import com.smi.drools.enumutil.FilterEnum;
@@ -26,6 +28,7 @@ import lombok.Data;
 
 @Entity
 @Table(name = "RULE_CONFIG")
+@EntityListeners(RuleConfigEntityListener.class)
 @Data
 public class RuleConfig implements Serializable {
 
