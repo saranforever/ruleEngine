@@ -9,10 +9,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.JoinColumn;
 
 import lombok.Data;
 
@@ -32,6 +34,7 @@ public class AuditLogger implements Serializable {
 	private Long id;
 
 	@ElementCollection
+	@JoinTable(name = "audit_logger_rule", joinColumns = @JoinColumn(name = "audit_id"))
 	@Column(name = "rulename")
 	private List<String> ruleName;
 

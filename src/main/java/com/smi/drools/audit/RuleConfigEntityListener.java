@@ -14,7 +14,6 @@ import com.smi.drools.entity.RuleConfig;
 import com.smi.drools.service.BeanUtil;
 import com.smi.drools.util.RuleConfigUtil;
 
-@Component
 public class RuleConfigEntityListener {
 
 	@PostPersist
