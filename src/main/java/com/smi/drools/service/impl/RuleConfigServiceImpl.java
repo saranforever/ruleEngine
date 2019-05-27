@@ -13,15 +13,27 @@ import com.smi.drools.entity.Rule;
 import com.smi.drools.entity.RuleBuilder;
 import com.smi.drools.entity.RuleConfig;
 import com.smi.drools.service.IRuleConfigService;
+import com.smi.drools.util.DroolsRulesService;
+import com.smi.drools.util.RuleConfigUtil;
 
 @Service
 public class RuleConfigServiceImpl implements IRuleConfigService {
 	
 	@Autowired
 	private RuleConfigRepository ruleConfigRepository;
+	
+	@Autowired
+	private DroolsRulesService reloadDroolsRulesService;
 
 	@Override
-	public void save(Rule rule, RuleConfig ruleConfig) {
+	public void save(RuleConfig ruleConfig) {
+		
+		String ruleStr = RuleConfigUtil.buildRule(ruleConfig);
+
+		Rule rule = new Rule();
+		rule.setContent(ruleStr);
+		rule.setCreateTime("");
+		rule.setVersion("7");
 		
 		List<RuleBuilder> ruleBuilders = ruleConfig.getRuleBuilders();
 		if (!CollectionUtils.isEmpty(ruleBuilders)) {
@@ -29,26 +41,34 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 			for (RuleBuilder ruleBuilder : ruleBuilders) {
 				ruleBuilder.setRuleConfig(ruleConfig);
 				// Condition Builder
-				List<ConditionBuilder> conditionBuilders = ruleBuilder.getConditionBuilders();
-				if (!CollectionUtils.isEmpty(conditionBuilders)) {
-					for (ConditionBuilder conditionBuilder : conditionBuilders) {
-						conditionBuilder.setRuleBuilder(ruleBuilder);
-					}
-				}
+				buildConditions(ruleBuilder, ruleBuilder.getConditionBuilders());
 				
 				// Action Builder
-				List<ActionBuilder> actionBuilders = ruleBuilder.getActionBuilders();
-				if (!CollectionUtils.isEmpty(actionBuilders)) {
-					for (ActionBuilder actionBuilder : actionBuilders) {
-						actionBuilder.setRuleBuilder(ruleBuilder);
-					}
-				}
+				buildActions(ruleBuilder, ruleBuilder.getActionBuilders());
 			}
 		}
 		rule.setEnable(true);
 		rule.setRuleKey(ruleConfig.getName());
 		ruleConfig.setRule(rule);
 		ruleConfigRepository.save(ruleConfig);
+		
+		this.reloadDroolsRulesService.addRule(rule);
+	}
+
+	private void buildActions(RuleBuilder ruleBuilder, List<ActionBuilder> actionBuilders) {
+		if (!CollectionUtils.isEmpty(actionBuilders)) {
+			for (ActionBuilder actionBuilder : actionBuilders) {
+				actionBuilder.setRuleBuilder(ruleBuilder);
+			}
+		}
+	}
+
+	private void buildConditions(RuleBuilder ruleBuilder, List<ConditionBuilder> conditionBuilders) {
+		if (!CollectionUtils.isEmpty(conditionBuilders)) {
+			for (ConditionBuilder conditionBuilder : conditionBuilders) {
+				conditionBuilder.setRuleBuilder(ruleBuilder);
+			}
+		}
 	}
 
 }

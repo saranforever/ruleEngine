@@ -13,16 +13,6 @@ import com.smi.drools.model.FieldValue;
 
 public class BusinessRuleEnrichment {
 
-	private boolean postCodeResult = false;
-
-	public boolean isPostCodeResult() {
-		return postCodeResult;
-	}
-
-	public void setPostCodeResult(boolean postCodeResult) {
-		this.postCodeResult = postCodeResult;
-	}
-
 	public CustomerDocument enrichInvoiceNoWithTimeStatmp(CustomerDocument customerDocument) {
 
 		Map<Integer, CustomerDocumentContext> cMap = customerDocument.getCustomerDocumentsContextMap();

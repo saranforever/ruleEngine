@@ -1,4 +1,5 @@
 package com.smi.drools.audit;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -6,8 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PostPersist;
-
-import org.springframework.stereotype.Component;
 
 import com.smi.drools.entity.AuditLogger;
 import com.smi.drools.entity.RuleConfig;
@@ -20,7 +19,8 @@ public class RuleConfigEntityListener {
 	public void postPersist(RuleConfig ruleConfig) {
 		String ruleStr = RuleConfigUtil.buildRule(ruleConfig);
 		AuditLogger auditLogger = new AuditLogger();
-		List<String> ruleNames = ruleConfig.getRuleBuilders().stream().map(s -> s.getRuleName()).collect(Collectors .toCollection(ArrayList::new));
+		List<String> ruleNames = ruleConfig.getRuleBuilders().stream().map(s -> s.getRuleName())
+				.collect(Collectors.toCollection(ArrayList::new));
 		auditLogger.setRuleName(ruleNames);
 		auditLogger.setTimeStamp(new Date());
 		auditLogger.setContent(ruleStr);

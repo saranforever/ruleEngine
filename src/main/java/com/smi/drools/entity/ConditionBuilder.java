@@ -32,11 +32,8 @@ public class ConditionBuilder implements Serializable {
 	@Column(name = "condition_builder_id")
 	private Long id;
 
-	@Column(name = "modelType")
-	private ModelTypeEnum modelType;
-
 	@Column(name = "metaField")
-	private String metaField;
+	private ModelTypeEnum metaField;
 
 	@Column(name = "filter")
 	private FilterEnum filter;

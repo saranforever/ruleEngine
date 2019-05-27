@@ -15,8 +15,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -72,20 +70,20 @@ public class RuleConfig implements Serializable {
 		List<RuleBuilder> ruleBuilders = new ArrayList<>();
 		// Rule 1
 		RuleBuilder ruleBuilder = new RuleBuilder();
-		ruleBuilder.setRuleName("drule1");
+		ruleBuilder.setRuleName("drule11");
+		ruleBuilder.setRuleGroupName("");
+		ruleBuilder.setModelType(ModelTypeEnum.CUSTOMERDOCUMENT);
 		List<ConditionBuilder> conditionBuilders = new ArrayList<>();
 
 		ConditionBuilder conditionBuilder = new ConditionBuilder();
-		conditionBuilder.setModelType(ModelTypeEnum.CUSTOMERDOCUMENT);
-		conditionBuilder.setMetaField("senderEid");
+		conditionBuilder.setMetaField(ModelTypeEnum.SENDEREID);
 		conditionBuilder.setFilter(FilterEnum.EQUALS);
 		conditionBuilder.setMetaValue("S123");
 		conditionBuilder.setConditionOperator(ConditionalEnum.AND);
 		conditionBuilders.add(conditionBuilder);
 
 		ConditionBuilder conditionBuilder1 = new ConditionBuilder();
-		conditionBuilder1.setModelType(ModelTypeEnum.CUSTOMERDOCUMENT);
-		conditionBuilder1.setMetaField("receiverEid");
+		conditionBuilder1.setMetaField(ModelTypeEnum.RECEIVEREID);
 		conditionBuilder1.setFilter(FilterEnum.EQUALS);
 		conditionBuilder1.setMetaValue("R123");
 		conditionBuilder1.setConditionOperator(null);
@@ -96,14 +94,14 @@ public class RuleConfig implements Serializable {
 		List<ActionBuilder> actionBuilders = new ArrayList<>();
 
 		ActionBuilder actionBuilder = new ActionBuilder();
-		actionBuilder.setEnrichement(EnrichmentEnum.BUSINESSRULEENRICHMENT);
-		actionBuilder.setEnrichmentAction("enrichInvoiceNoWithTimeStatmp");
+		actionBuilder.setEnrichement(EnrichmentEnum.RULE);
+		actionBuilder.setEnrichmentAction("Enricher Common");
 		actionBuilders.add(actionBuilder);
 
-		ActionBuilder actionBuilder1 = new ActionBuilder();
-		actionBuilder1.setEnrichement(EnrichmentEnum.BUSINESSRULEENRICHMENT);
-		actionBuilder1.setEnrichmentAction("enrichInvoiceNoWithDateFormat");
-		actionBuilders.add(actionBuilder1);
+		/*ActionBuilder actionBuilder1 = new ActionBuilder();
+		actionBuilder1.setEnrichement(EnrichmentEnum.NUMBERENRICHMENT);
+		actionBuilder1.setEnrichmentAction("roundOffAmount");
+		actionBuilders.add(actionBuilder1);*/
 
 		ruleBuilder.setActionBuilders(actionBuilders);
 		ruleBuilders.add(ruleBuilder);

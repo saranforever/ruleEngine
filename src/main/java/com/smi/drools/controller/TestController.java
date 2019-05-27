@@ -6,10 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,14 +20,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.smi.drools.dao.RuleBuilderRepository;
 import com.smi.drools.entity.ActionBuilder;
 import com.smi.drools.entity.ConditionBuilder;
-import com.smi.drools.entity.Rule;
 import com.smi.drools.entity.RuleBuilder;
 import com.smi.drools.entity.RuleConfig;
 import com.smi.drools.enumutil.ConditionalEnum;
 import com.smi.drools.enumutil.EnrichmentEnum;
 import com.smi.drools.enumutil.FilterEnum;
+import com.smi.drools.enumutil.ModelTypeEnum;
 import com.smi.drools.model.AutoLineItemData;
 import com.smi.drools.model.CustomerDocument;
 import com.smi.drools.model.CustomerDocumentContext;
@@ -37,7 +41,6 @@ import com.smi.drools.model.fact.BusinessRuleEnrichment;
 import com.smi.drools.model.fact.NumberEnrichment;
 import com.smi.drools.service.IRuleConfigService;
 import com.smi.drools.util.DroolsRulesService;
-import com.smi.drools.util.RuleConfigUtil;
 
 @RequestMapping("/test")
 @Controller
@@ -49,41 +52,8 @@ public class TestController {
 	@Autowired
 	private IRuleConfigService ruleConfigService;
 
-	/*@ResponseBody
-	@RequestMapping("/address")
-	public void test(int num) {
-		Address address = new Address();
-		address.setPostcode(generateRandom(num));
-		KieSession kieSession = reloadDroolsRulesService.getKieContainer().newKieSession();
-
-		BusinessRuleEnrichment result = new BusinessRuleEnrichment();
-		kieSession.insert(address);
-		kieSession.insert(result);
-		int ruleFiredCount = kieSession.fireAllRules();
-		kieSession.destroy();
-		System.out.println("Triggered" + ruleFiredCount + "Rule");
-
-		if (result.isPostCodeResult()) {
-			System.out.println("Rule verification");
-		}
-
-	}*/
-
-	/*@ResponseBody
-	@RequestMapping("/testmsg")
-	public void testMessage() {
-		KieSession kieSession = reloadDroolsRulesService.getKieContainer().newKieSession();
-
-		Message message = new Message();
-		message.setStatus(1);
-		message.setMsg("hello world!");
-
-		kieSession.insert(message);
-		int ruleFiredCount = kieSession.fireAllRules();
-		kieSession.destroy();
-		System.out.println("Triggered" + ruleFiredCount + "Message");
-
-	}*/
+	@Autowired
+	private RuleBuilderRepository ruleBuilderRepository;
 
 	@ResponseBody
 	@PostMapping("/testdoccontext")
@@ -137,39 +107,7 @@ public class TestController {
 	@ResponseBody
 	@PostMapping("/createdocumentcontextrule")
 	public String createDocRule(@RequestBody RuleConfig ruleConfig) {
-		String ruleStr = RuleConfigUtil.buildRule(ruleConfig);
-
-		Rule rule = new Rule();
-		rule.setContent(ruleStr);
-		rule.setCreateTime("");
-		rule.setVersion("7");
-
-		ruleConfigService.save(rule, ruleConfig);
-		this.reloadDroolsRulesService.addRule(rule);
-		return "rule created";
-	}
-
-	@ResponseBody
-	@RequestMapping("/createrule")
-	public String createRule() {
-		String ruleStr = "package com.smi.drools\r\n";
-		ruleStr += "import com.smi.drools.model.Message;\r\n";
-		ruleStr += "rule \"rule1\"\r\n";
-		ruleStr += "\twhen\r\n";
-		ruleStr += "Message( status == 1, myMessage : msg )";
-		ruleStr += "\tthen\r\n";
-		ruleStr += "\t\tSystem.out.println( 1+\":\"+myMessage );\r\n";
-		ruleStr += "end\r\n";
-
-		Rule rule = new Rule();
-		rule.setContent(ruleStr);
-		rule.setCreateTime("");
-		rule.setRuleKey("score");
-		rule.setVersion("1");
-
-		ruleConfigService.save(rule, null);
-		reloadDroolsRulesService.reload();
-
+		ruleConfigService.save(ruleConfig);
 		return "rule created";
 	}
 
@@ -179,9 +117,30 @@ public class TestController {
 	 */
 	@ResponseBody
 	@RequestMapping("/reload")
-	public String reload() throws IOException {
+	public String reload() {
 		reloadDroolsRulesService.reload();
 		return "ok";
+	}
+
+	@ResponseBody
+	@GetMapping("/fetchfields/{model}")
+	public List<ModelTypeEnum> fetchFields(@PathVariable("model") ModelTypeEnum modelTypeEnum) {
+		return ModelTypeEnum.stream().filter(mt -> (mt.parent() != null && mt.parent().equals(modelTypeEnum)))
+				.collect(Collectors.toList());
+	}
+
+	@ResponseBody
+	@GetMapping(value = "/fetchBusinessMethods/{businessclass}")
+	public List<String> getchBusinessMethods(@PathVariable("businessclass") EnrichmentEnum enrichmentEnum)
+			throws ClassNotFoundException {
+		return enrichmentEnum.equals(EnrichmentEnum.RULE) ? ruleBuilderRepository.findCommonRules()
+				: EnrichmentEnum.getAllMethods(enrichmentEnum);
+	}
+
+	@ResponseBody
+	@GetMapping(value = "/fetchEnrichmentClasses")
+	public List<EnrichmentEnum> fetchEnrichmentClasses() {
+		return EnrichmentEnum.stream().collect(Collectors.toList());
 	}
 
 	/**
@@ -205,7 +164,7 @@ public class TestController {
 		ruleBuilder.setRuleName("Rule2");
 		ConditionBuilder conditionBuilder = new ConditionBuilder();
 		conditionBuilder.setFilter(FilterEnum.EQUALS);
-		conditionBuilder.setMetaField("documentType");
+		/* conditionBuilder.setMetaField("documentType"); */
 		conditionBuilder.setMetaValue("EDI");
 		conditionBuilder.setConditionOperator(ConditionalEnum.AND);
 		List<ConditionBuilder> conditionBuilders = new ArrayList<>();

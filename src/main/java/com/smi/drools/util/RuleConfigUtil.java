@@ -58,17 +58,17 @@ public class RuleConfigUtil {
 				ruleStrBuilder.append(String.format(DROOL_GROUP_NAME, ruleBuilder.getRuleGroupName()));
 			}
 			ruleStrBuilder.append(DROOL_WHEN);
+			ModelTypeEnum modelType = ruleBuilder.getModelType();
 			conditionStrBuilder.append(String.format(DROOL_FACT_INITIALIZER,
-					ruleBuilder.getModelType().className().toLowerCase(), ruleBuilder.getModelType().packageName()));
+					modelType.className().toLowerCase(), modelType.packageName()));
 			
 			Optional.ofNullable(ruleBuilder.getConditionBuilders()).ifPresent(cb -> cb.forEach(conditionBuilder -> {
-				ModelTypeEnum modelType = conditionBuilder.getModelType();
-				
-				conditionStrBuilder.append(modelType.packageName() + "(");
+				ModelTypeEnum metaField = conditionBuilder.getMetaField();
+				conditionStrBuilder.append(metaField.packageName() + "(");
 				
 				FilterEnum conditionFilter = conditionBuilder.getFilter();
 				String symbol = conditionFilter.symbol();
-				conditionStrBuilder.append(conditionBuilder.getMetaField());
+				conditionStrBuilder.append(metaField.className());
 				conditionStrBuilder.append(symbol);
 				conditionStrBuilder.append("'" + conditionBuilder.getMetaValue() + "')");
 				
