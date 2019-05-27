@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.smi.drools.dao.RuleConfigRepository;
+import com.smi.drools.dao.RuleRepository;
 import com.smi.drools.entity.ActionBuilder;
 import com.smi.drools.entity.ConditionBuilder;
 import com.smi.drools.entity.Rule;
@@ -24,6 +25,9 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 	
 	@Autowired
 	private DroolsRulesService reloadDroolsRulesService;
+	
+	@Autowired
+	private RuleRepository ruleRepository;
 
 	@Override
 	public void save(RuleConfig ruleConfig) {
@@ -31,9 +35,14 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 		String ruleStr = RuleConfigUtil.buildRule(ruleConfig);
 
 		Rule rule = new Rule();
-		rule.setContent(ruleStr);
-		rule.setCreateTime("");
-		rule.setVersion("7");
+		if (ruleConfig.getId() != null) {
+			/*ruleRepository.findOne(id)*/
+		} else {
+			rule = new Rule();
+			rule.setContent(ruleStr);
+			rule.setCreateTime("");
+			rule.setVersion("7");
+		}
 		
 		List<RuleBuilder> ruleBuilders = ruleConfig.getRuleBuilders();
 		if (!CollectionUtils.isEmpty(ruleBuilders)) {
@@ -69,6 +78,12 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 				conditionBuilder.setRuleBuilder(ruleBuilder);
 			}
 		}
+	}
+
+	@Override
+	public RuleConfig findRuleConfigById(long id) {
+		RuleConfig ruleConfig = ruleConfigRepository.findOne(id);
+		return ruleConfig;
 	}
 
 }

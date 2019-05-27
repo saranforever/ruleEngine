@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -141,6 +142,12 @@ public class TestController {
 	@GetMapping(value = "/fetchEnrichmentClasses")
 	public List<EnrichmentEnum> fetchEnrichmentClasses() {
 		return EnrichmentEnum.stream().collect(Collectors.toList());
+	}
+	
+	@ResponseBody
+	@GetMapping(value = "/fetchRuleConfig/{id}")
+	public ResponseEntity<RuleConfig> fetchRuleConfigBy(@PathVariable("id") long id) {
+		return ResponseEntity.ok(ruleConfigService.findRuleConfigById(id));
 	}
 
 	/**

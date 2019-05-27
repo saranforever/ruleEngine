@@ -8,6 +8,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -52,7 +53,7 @@ public class RuleConfig implements Serializable {
 	@Column(name = "ruleDescription")
 	private String ruleDescription;
 
-	@OneToMany(mappedBy = "ruleConfig", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "ruleConfig", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<RuleBuilder> ruleBuilders;
 
 	@OneToOne(cascade = CascadeType.ALL)

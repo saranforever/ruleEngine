@@ -6,4 +6,6 @@ public interface IRuleConfigService {
 	
 	void save(RuleConfig ruleConfig);
 
+	RuleConfig findRuleConfigById(long id);
+
 }
