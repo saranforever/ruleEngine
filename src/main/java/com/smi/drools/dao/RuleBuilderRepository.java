@@ -17,7 +17,10 @@ public interface RuleBuilderRepository extends JpaRepository<RuleBuilder, Long> 
 	public List<RuleBuilder> findByRuleConfig(RuleConfig ruleConfig);
 	
 	@Query("SELECT count(*) from RuleBuilder rb where rb.ruleGroupName = :ruleGroupName and rb.ruleGroupName != ''")
-	public Long findByRuleGroupName(@Param("ruleGroupName") String ruleGroupName);
+	public Long getCountByRuleGroupName(@Param("ruleGroupName") String ruleGroupName);
+
+	@Query("SELECT rb.ruleGroupName from RuleBuilder rb where rb.id = :id")
+	public String getRuleGroupNameById(@Param("id") Long id);
 	
 
 }

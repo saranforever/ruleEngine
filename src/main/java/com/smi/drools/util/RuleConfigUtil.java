@@ -68,9 +68,14 @@ public class RuleConfigUtil {
 				
 				FilterEnum conditionFilter = conditionBuilder.getFilter();
 				String symbol = conditionFilter.symbol();
-				conditionStrBuilder.append(metaField.className());
-				conditionStrBuilder.append(symbol);
-				conditionStrBuilder.append("'" + conditionBuilder.getMetaValue() + "')");
+				if(conditionFilter.packageName().equals(FilterEnum.CONTAINS.packageName())) {
+					conditionStrBuilder.append(String.format(symbol, modelType.className().toLowerCase(), modelType.className().toLowerCase()));
+				}
+				else {
+					conditionStrBuilder.append(metaField.className());
+					conditionStrBuilder.append(symbol);
+					conditionStrBuilder.append("'" + conditionBuilder.getMetaValue() + "')");
+				}
 				
 				ConditionalEnum condition = conditionBuilder.getConditionOperator();
 				if (condition != null) {

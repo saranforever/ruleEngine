@@ -3,11 +3,8 @@ package com.smi.drools.service.impl;
 import java.util.List;
 import java.util.Optional;
 
-import javax.transaction.Transactional;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.drools.core.spi.RuleComponent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,8 +28,8 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 
 	@Autowired
 	private DroolsRulesService reloadDroolsRulesService;
-	
-	@Autowired 
+
+	@Autowired
 	private RuleBuilderRepository ruleBuilderRepository;
 
 	/*
@@ -64,7 +61,15 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 		if (!CollectionUtils.isEmpty(ruleBuilders)) {
 			// Rule Builder
 			for (RuleBuilder ruleBuilder : ruleBuilders) {
-				if(ruleBuilderRepository.findByRuleGroupName(ruleBuilder.getRuleGroupName()) > 0){
+				String oldGroupName = "";
+				if (ruleBuilder.getId() != null) {
+					oldGroupName = ruleBuilderRepository.getRuleGroupNameById(ruleBuilder.getId());
+
+				}
+
+				if ((ruleBuilder.getId() != null && !oldGroupName.equals(ruleBuilder.getRuleGroupName())
+						&& checkGroupNameAlreadyExists(ruleBuilder))
+						|| (ruleBuilder.getId() == null && checkGroupNameAlreadyExists(ruleBuilder))) {
 					throw new Exception("Duplicate Group Name");
 				}
 				ruleBuilder.setRuleConfig(ruleConfig);
@@ -87,6 +92,10 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 		ruleConfigRepository.save(ruleConfig);
 		this.reloadDroolsRulesService.addRule(rule);
 		return ruleConfig;
+	}
+
+	private boolean checkGroupNameAlreadyExists(RuleBuilder ruleBuilder) {
+		return ruleBuilderRepository.getCountByRuleGroupName(ruleBuilder.getRuleGroupName()) > 0;
 	}
 
 	private List<ActionBuilder> buildActions(RuleBuilder ruleBuilder, List<ActionBuilder> actionBuilders) {
@@ -128,7 +137,7 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 	public StatusDTO deleteRuleConfigById(long id) {
 		ruleConfigRepository.deleteById(id);
 		return new StatusDTO("ok");
-		
+
 	}
 
 }
