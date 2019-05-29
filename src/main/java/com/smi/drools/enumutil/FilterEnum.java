@@ -2,7 +2,7 @@ package com.smi.drools.enumutil;
 
 public enum FilterEnum {
 
-	EQUALS("equals", "=="), NOTEQUALS("not equals", "!="), ROUND_OFF("Round off");
+	EQUALS("equals", "=="), NOTEQUALS("not equals", "!="), ROUND_OFF("Round off"), CONTAINS("contains");
 
 	String displayName;
 	private String symbol;

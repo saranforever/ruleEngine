@@ -7,11 +7,13 @@ import javax.transaction.Transactional;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.drools.core.spi.RuleComponent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.smi.drools.dao.RuleBuilderRepository;
 import com.smi.drools.dao.RuleConfigRepository;
+import com.smi.drools.dto.StatusDTO;
 import com.smi.drools.entity.ActionBuilder;
 import com.smi.drools.entity.ConditionBuilder;
 import com.smi.drools.entity.Rule;
@@ -120,6 +122,13 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 	@Override
 	public List<RuleConfig> findByEmailId(String emailId) {
 		return ruleConfigRepository.findByEmailId(emailId);
+	}
+
+	@Override
+	public StatusDTO deleteRuleConfigById(long id) {
+		ruleConfigRepository.deleteById(id);
+		return new StatusDTO("ok");
+		
 	}
 
 }

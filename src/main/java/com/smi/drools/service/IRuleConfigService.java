@@ -3,6 +3,7 @@ package com.smi.drools.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.smi.drools.dto.StatusDTO;
 import com.smi.drools.entity.RuleConfig;
 
 public interface IRuleConfigService {
@@ -14,5 +15,7 @@ public interface IRuleConfigService {
 	List<RuleConfig> findAll();
 
 	List<RuleConfig> findByEmailId(String emailId);
+	
+	StatusDTO deleteRuleConfigById(long id);
 
 }

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.smi.drools.dao.RuleBuilderRepository;
 import com.smi.drools.dto.RuleConfigDTO;
+import com.smi.drools.dto.StatusDTO;
 import com.smi.drools.entity.RuleConfig;
 import com.smi.drools.enumutil.EnrichmentEnum;
 import com.smi.drools.enumutil.ModelTypeEnum;
@@ -140,6 +141,12 @@ public class TestController {
 	public ResponseEntity<RuleConfigDTO> fetchRuleConfigBy(@PathVariable("id") long id) {
 		Optional<RuleConfig> ruleConfig = ruleConfigService.findRuleConfigById(id);
 		return ResponseEntity.ok(mapperFacade.map(ruleConfig.get(), RuleConfigDTO.class));
+	}
+	
+	@ResponseBody
+	@GetMapping(value = "/deleteRuleConfig/{id}")
+	public ResponseEntity<StatusDTO> deleteRuleConfigBy(@PathVariable("id") long id) {
+		return ResponseEntity.ok(ruleConfigService.deleteRuleConfigById(id));
 	}
 	
 	@ResponseBody
