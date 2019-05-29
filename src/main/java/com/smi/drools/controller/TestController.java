@@ -1,27 +1,31 @@
 package com.smi.drools.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.smi.drools.dao.RuleBuilderRepository;
+import com.smi.drools.dto.RuleConfigDTO;
 import com.smi.drools.entity.ActionBuilder;
 import com.smi.drools.entity.ConditionBuilder;
 import com.smi.drools.entity.RuleBuilder;
@@ -43,10 +47,13 @@ import com.smi.drools.model.fact.NumberEnrichment;
 import com.smi.drools.service.IRuleConfigService;
 import com.smi.drools.util.DroolsRulesService;
 
+import ma.glasnost.orika.MapperFacade;
+
+@CrossOrigin
 @RequestMapping("/test")
 @Controller
 public class TestController {
-
+	
 	@Autowired
 	private DroolsRulesService reloadDroolsRulesService;
 
@@ -55,6 +62,9 @@ public class TestController {
 
 	@Autowired
 	private RuleBuilderRepository ruleBuilderRepository;
+	
+	@Autowired
+	private MapperFacade mapperFacade;
 
 	@ResponseBody
 	@PostMapping("/testdoccontext")
@@ -107,15 +117,11 @@ public class TestController {
 
 	@ResponseBody
 	@PostMapping("/createdocumentcontextrule")
-	public String createDocRule(@RequestBody RuleConfig ruleConfig) {
-		ruleConfigService.save(ruleConfig);
-		return "rule created";
+	public ResponseEntity<RuleConfig> createDocRule(@RequestBody RuleConfigDTO ruleConfigDTO) throws Exception {
+		RuleConfig ruleConfig = mapperFacade.map(ruleConfigDTO, RuleConfig.class);
+		return new ResponseEntity<>(ruleConfigService.save(ruleConfig), HttpStatus.OK);
 	}
 
-	/**
-	 * @return
-	 * @throws IOException
-	 */
 	@ResponseBody
 	@RequestMapping("/reload")
 	public String reload() {
@@ -146,8 +152,16 @@ public class TestController {
 	
 	@ResponseBody
 	@GetMapping(value = "/fetchRuleConfig/{id}")
-	public ResponseEntity<RuleConfig> fetchRuleConfigBy(@PathVariable("id") long id) {
-		return ResponseEntity.ok(ruleConfigService.findRuleConfigById(id));
+	public ResponseEntity<RuleConfigDTO> fetchRuleConfigBy(@PathVariable("id") long id) {
+		Optional<RuleConfig> ruleConfig = ruleConfigService.findRuleConfigById(id);
+		return ResponseEntity.ok(mapperFacade.map(ruleConfig.get(), RuleConfigDTO.class));
+	}
+	
+	@ResponseBody
+	@GetMapping(value = "/fetchAllRuleConfig")
+	public ResponseEntity<List<RuleConfig>> fetchRuleConfigBy(@RequestParam("emailId") String emailId) {
+		List<RuleConfig> ruleConfigs = ruleConfigService.findByEmailId(emailId);
+		return ResponseEntity.ok(ruleConfigs);
 	}
 
 	/**

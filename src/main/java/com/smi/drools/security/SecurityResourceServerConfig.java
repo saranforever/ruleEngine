@@ -1,4 +1,4 @@
-package com.smi.drools.security;
+/*package com.smi.drools.security;
 
 import org.apache.catalina.filters.RequestDumperFilter;
 import org.springframework.context.annotation.Bean;
@@ -23,3 +23,4 @@ public class SecurityResourceServerConfig extends ResourceServerConfigurerAdapte
         return new RequestDumperFilter();
     }
 }
+*/

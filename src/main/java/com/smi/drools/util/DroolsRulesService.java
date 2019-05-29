@@ -65,7 +65,7 @@ public class DroolsRulesService {
 
 		for (Rule rule : rules) {
 			String drl = rule.getContent();
-			this.kfs.write(RULES_PATH + drl.hashCode() + RULES_FILE_EXTENSION, drl);
+			this.kfs.write(RULES_PATH + rule.getRuleConfig().getId() + RULES_FILE_EXTENSION, drl);
 		}
 
 		this.kb = this.ks.newKieBuilder(this.kfs);
@@ -85,7 +85,7 @@ public class DroolsRulesService {
 	
 	public void addRule(Rule rule) {
 		String drl = rule.getContent();
-		this.kfs.write(RULES_PATH + drl.hashCode() + RULES_FILE_EXTENSION, drl);
+		this.kfs.write(RULES_PATH + rule.getRuleConfig().getId() + RULES_FILE_EXTENSION, drl);
 		this.kb = this.ks.newKieBuilder(this.kfs);
 		this.kb.buildAll();
 		if (this.kb.getResults().hasMessages(Message.Level.ERROR)) {
@@ -96,6 +96,16 @@ public class DroolsRulesService {
 
 	public KieContainer getKieContainer() {
 		return this.kieContainer;
+	}
+
+	public void removeRule(Long configId) {
+		this.kfs.delete(RULES_PATH + configId + RULES_FILE_EXTENSION);
+		this.kb = this.ks.newKieBuilder(this.kfs);
+		this.kb.buildAll();
+		if (this.kb.getResults().hasMessages(Message.Level.ERROR)) {
+			throw new RuntimeException("Build Errors:\n" + kb.getResults().toString());
+		}
+		this.kieContainer = this.ks.newKieContainer(this.kr.getDefaultReleaseId());
 	}
 
 }

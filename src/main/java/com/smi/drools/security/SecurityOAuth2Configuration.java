@@ -1,4 +1,4 @@
-package com.smi.drools.security;
+/*package com.smi.drools.security;
 
 import javax.sql.DataSource;
 
@@ -56,3 +56,4 @@ public class SecurityOAuth2Configuration extends AuthorizationServerConfigurerAd
 		endpoints.tokenStore(tokenStore());
 	}
 }
+*/
