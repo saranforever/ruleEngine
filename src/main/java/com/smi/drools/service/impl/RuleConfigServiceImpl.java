@@ -62,9 +62,16 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 			// Rule Builder
 			for (RuleBuilder ruleBuilder : ruleBuilders) {
 				String oldGroupName = "";
+				String oldRuleName = "";
+				oldRuleName = ruleBuilderRepository.getRuleNameById(ruleBuilder.getId());
 				if (ruleBuilder.getId() != null) {
 					oldGroupName = ruleBuilderRepository.getRuleGroupNameById(ruleBuilder.getId());
+				}
 
+				if ((ruleBuilder.getId() != null && !oldRuleName.equals(ruleBuilder.getRuleName())
+						&& checkRuleNameAlreadyExists(ruleBuilder))
+						|| (ruleBuilder.getId() == null && checkRuleNameAlreadyExists(ruleBuilder))) {
+					throw new Exception("Duplicate Rule Name");
 				}
 
 				if ((ruleBuilder.getId() != null && !oldGroupName.equals(ruleBuilder.getRuleGroupName())
@@ -86,12 +93,26 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 		rule.setRuleConfig(ruleConfig);
 		ruleConfig.setRule(rule);
 
+		// check whether the NAME unique field of the RULECONFIG Entity is duplicate or
+		// not
+		if (checkRuleConfigNameAlreadyExists(ruleConfig)) {
+			throw new Exception("Duplicate RuleConfig name");
+		}
+
 		if (!StringUtils.isEmpty(oldRule)) {
 			this.reloadDroolsRulesService.removeRule(ruleConfig.getId());
 		}
 		ruleConfigRepository.save(ruleConfig);
 		this.reloadDroolsRulesService.addRule(rule);
 		return ruleConfig;
+	}
+
+	private boolean checkRuleConfigNameAlreadyExists(RuleConfig ruleConfig) {
+		return ruleConfigRepository.getCountByName(ruleConfig.getName()) > 0;
+	}
+
+	private boolean checkRuleNameAlreadyExists(RuleBuilder ruleBuilder) {
+		return ruleBuilderRepository.getCountByRuleName(ruleBuilder.getRuleName()) > 0;
 	}
 
 	private boolean checkGroupNameAlreadyExists(RuleBuilder ruleBuilder) {
@@ -136,6 +157,7 @@ public class RuleConfigServiceImpl implements IRuleConfigService {
 	@Override
 	public StatusDTO deleteRuleConfigById(long id) {
 		ruleConfigRepository.deleteById(id);
+		this.reloadDroolsRulesService.removeRule(id);
 		return new StatusDTO("ok");
 
 	}

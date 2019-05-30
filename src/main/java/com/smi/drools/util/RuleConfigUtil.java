@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.smi.drools.entity.ConditionBuilder;
+import com.smi.drools.entity.RuleBuilder;
 import com.smi.drools.entity.RuleConfig;
 import com.smi.drools.enumutil.ConditionalEnum;
 import com.smi.drools.enumutil.EnrichmentEnum;
@@ -15,8 +17,6 @@ import com.smi.drools.enumutil.ModelTypeEnum;
 public class RuleConfigUtil {
 
 	private static final String DROOL_PACKAGE = "package com.smi.drools;\r\n";
-
-	/*private static final String DROOL_MODEL_PACKAGE = "%s;\r\n";*/
 
 	private static final String DROOL_RULE_NAME = "rule \"%s\"\r\n";
 	
@@ -54,33 +54,14 @@ public class RuleConfigUtil {
 		ruleConfig.getRuleBuilders().stream().forEach(ruleBuilder -> {
 			StringBuilder conditionStrBuilder = new StringBuilder();
 			ruleStrBuilder.append(String.format(DROOL_RULE_NAME, ruleBuilder.getRuleName()));
-			if (StringUtils.isNotEmpty(ruleBuilder.getRuleGroupName())) {
-				ruleStrBuilder.append(String.format(DROOL_GROUP_NAME, ruleBuilder.getRuleGroupName()));
-			}
+			appendGroupName(ruleStrBuilder, ruleBuilder);
 			ruleStrBuilder.append(DROOL_WHEN);
 			ModelTypeEnum modelType = ruleBuilder.getModelType();
 			conditionStrBuilder.append(String.format(DROOL_FACT_INITIALIZER,
 					modelType.className().toLowerCase(), modelType.packageName()));
 			
 			Optional.ofNullable(ruleBuilder.getConditionBuilders()).ifPresent(cb -> cb.forEach(conditionBuilder -> {
-				ModelTypeEnum metaField = conditionBuilder.getMetaField();
-				conditionStrBuilder.append(metaField.packageName() + "(");
-				
-				FilterEnum conditionFilter = conditionBuilder.getFilter();
-				String symbol = conditionFilter.symbol();
-				if(conditionFilter.packageName().equals(FilterEnum.CONTAINS.packageName())) {
-					conditionStrBuilder.append(String.format(symbol, modelType.className().toLowerCase(), modelType.className().toLowerCase()));
-				}
-				else {
-					conditionStrBuilder.append(metaField.className());
-					conditionStrBuilder.append(symbol);
-					conditionStrBuilder.append("'" + conditionBuilder.getMetaValue() + "')");
-				}
-				
-				ConditionalEnum condition = conditionBuilder.getConditionOperator();
-				if (condition != null) {
-					conditionStrBuilder.append(condition.symbol());
-				}
+				conditionBuilder(conditionStrBuilder, modelType, conditionBuilder);
 			}));
 			
 			ruleStrBuilder.append(String.format(DROOL_WHEN_BUILDER, conditionStrBuilder));
@@ -115,6 +96,34 @@ public class RuleConfigUtil {
 		});
 		
 		return ruleStrBuilder.toString();
+	}
+
+	private static void conditionBuilder(StringBuilder conditionStrBuilder, ModelTypeEnum modelType,
+			ConditionBuilder conditionBuilder) {
+		ModelTypeEnum metaField = conditionBuilder.getMetaField();
+		conditionStrBuilder.append(metaField.packageName() + "(");
+		
+		FilterEnum conditionFilter = conditionBuilder.getFilter();
+		String symbol = conditionFilter.symbol();
+		if(conditionFilter.packageName().equals(FilterEnum.CONTAINS.packageName())) {
+			conditionStrBuilder.append(String.format(symbol, modelType.className().toLowerCase(), modelType.className().toLowerCase()));
+		}
+		else {
+			conditionStrBuilder.append(metaField.className());
+			conditionStrBuilder.append(symbol);
+			conditionStrBuilder.append("'" + conditionBuilder.getMetaValue() + "')");
+		}
+		
+		ConditionalEnum condition = conditionBuilder.getConditionOperator();
+		if (condition != null) {
+			conditionStrBuilder.append(condition.symbol());
+		}
+	}
+
+	private static void appendGroupName(StringBuilder ruleStrBuilder, RuleBuilder ruleBuilder) {
+		if (StringUtils.isNotEmpty(ruleBuilder.getRuleGroupName())) {
+			ruleStrBuilder.append(String.format(DROOL_GROUP_NAME, ruleBuilder.getRuleGroupName()));
+		}
 	}
 
 }

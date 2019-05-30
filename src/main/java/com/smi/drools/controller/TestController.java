@@ -1,12 +1,9 @@
 package com.smi.drools.controller;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.kie.api.runtime.KieSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +24,6 @@ import com.smi.drools.entity.RuleConfig;
 import com.smi.drools.enumutil.EnrichmentEnum;
 import com.smi.drools.enumutil.ModelTypeEnum;
 import com.smi.drools.model.CustomerDocument;
-import com.smi.drools.model.CustomerDocumentContext;
-import com.smi.drools.model.fact.BusinessRuleEnrichment;
-import com.smi.drools.model.fact.NumberEnrichment;
 import com.smi.drools.service.IRuleConfigService;
 import com.smi.drools.util.DroolsRulesService;
 
@@ -55,50 +49,7 @@ public class TestController {
 	@ResponseBody
 	@PostMapping("/testdoccontext")
 	public CustomerDocument testDocumentContext(@RequestBody CustomerDocument customerDocument) {
-		KieSession kieSession = reloadDroolsRulesService.getKieContainer().newKieSession();
-
-		kieSession.insert(customerDocument);
-		Map<Integer, CustomerDocumentContext> customerDocumentsContextMap = customerDocument
-				.getCustomerDocumentsContextMap();
-		Set<Integer> keySet = customerDocumentsContextMap.keySet();
-		keySet.stream().forEach(key -> {
-			CustomerDocumentContext customerDocumentContext = customerDocumentsContextMap.get(key);
-			// AutoLine Data
-			if (customerDocumentContext.getAutoLineItemData() != null) {
-				kieSession.insert(customerDocumentContext.getAutoLineItemData());
-			}
-
-			// FieldData
-			customerDocumentContext.getFieldDatas().stream().forEach(fieldData -> {
-				kieSession.insert(fieldData);
-				fieldData.getFieldValues().stream().forEach(fieldValue -> {
-					kieSession.insert(fieldValue);
-				});
-			});
-
-			// Line Item Data
-			customerDocumentContext.getLineItemDatas().stream().forEach(lineItemData -> {
-				kieSession.insert(lineItemData);
-				kieSession.insert(lineItemData.getAmount());
-				kieSession.insert(lineItemData.getQty());
-				kieSession.insert(lineItemData.getUnitPrice());
-				kieSession.insert(lineItemData.getDescription());
-			});
-		});
-
-		BusinessRuleEnrichment businessRuleEnrichment = new BusinessRuleEnrichment();
-		kieSession.insert(businessRuleEnrichment);
-
-		NumberEnrichment numberEnrichment = new NumberEnrichment();
-		kieSession.insert(numberEnrichment);
-
-		long startTime = System.currentTimeMillis();
-		int ruleFiredCount = kieSession.fireAllRules();
-		kieSession.destroy();
-		long endTime = System.currentTimeMillis();
-		System.out.println("Time to fetch and fire rule: " + (endTime - startTime) + " ms");
-		System.out.println("Triggered" + ruleFiredCount + "DocumentContext");
-		return customerDocument;
+		return this.reloadDroolsRulesService.triggerRule(customerDocument);
 	}
 
 	@ResponseBody

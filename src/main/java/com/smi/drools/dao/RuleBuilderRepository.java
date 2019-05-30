@@ -21,6 +21,12 @@ public interface RuleBuilderRepository extends JpaRepository<RuleBuilder, Long> 
 
 	@Query("SELECT rb.ruleGroupName from RuleBuilder rb where rb.id = :id")
 	public String getRuleGroupNameById(@Param("id") Long id);
+
+	@Query("SELECT rb.ruleName from RuleBuilder rb where rb.id = :id")
+	public String getRuleNameById(@Param("id") Long id);
+
+	@Query("SELECT count(*) from RuleBuilder rb where rb.ruleName = :ruleName")
+	public Long getCountByRuleName(@Param("ruleName") String ruleName);
 	
 
 }

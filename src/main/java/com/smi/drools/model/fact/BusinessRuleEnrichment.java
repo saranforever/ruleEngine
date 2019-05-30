@@ -56,4 +56,26 @@ public class BusinessRuleEnrichment {
 		}
 		return customerDocument;
 	}
+
+	public CustomerDocument enrichWithRandomNumber(CustomerDocument customerDocument) {
+		Map<Integer, CustomerDocumentContext> cMap = customerDocument.getCustomerDocumentsContextMap();
+		Set<Integer> keySet = cMap.keySet();
+
+		for (Integer key : keySet) {
+			CustomerDocumentContext customerDocumentContext = cMap.get(key);
+			List<FieldData> fieldDatas = customerDocumentContext.getFieldDatas();
+			for (FieldData fieldData : fieldDatas) {
+				if (fieldData.getFieldName().equalsIgnoreCase("invoice")) {
+					List<FieldValue> fieldValues = fieldData.getFieldValues();
+					for (FieldValue fieldValue : fieldValues) {
+						if (StringUtils.isEmpty(fieldValue.getValue())) {
+							long randomNumber = (long) Math.floor(Math.random() * 9_000_000_000L) + 1_000_000_000L;
+							fieldValue.setValue(randomNumber + "");
+						}
+					}
+				}
+			}
+		}
+		return customerDocument;
+	}
 }
